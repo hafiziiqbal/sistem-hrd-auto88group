@@ -113,9 +113,9 @@ const chartOptions = computed<ApexOptions>(() => ({
     fontFamily: "Inter, sans-serif",
     stacked: false, // Set true jika ingin grafik bertumpuk
   },
-  theme: {
-    mode: theme.global.current.value.dark ? "dark" : "light",
-  },
+  // theme: {
+  //   mode: theme.global.current.value.dark ? "dark" : "light",
+  // },
   plotOptions: {
     bar: {
       borderRadius: 4,

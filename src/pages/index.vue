@@ -9,10 +9,16 @@
     <total-employees-card />
     <expiring-contracts-card />
     <join-termination-card />
+    <employee-master-approval-card />
+    <employee-status-card />
+    <education-statistics-card />
   </div>
 </template>
 
 <script setup lang="ts">
+import EducationStatisticsCard from "@/components/EducationStatisticsCard.vue";
+import EmployeeMasterApprovalCard from "@/components/EmployeeMasterApprovalCard.vue";
+import EmployeeStatusCard from "@/components/EmployeeStatusCard.vue";
 import ExpiringContractsCard from "@/components/ExpiringContractsCard.vue";
 import GenderStatisticsCard from "@/components/GenderStatisticsCard.vue";
 import JoinTerminationCard from "@/components/JoinTerminationCard.vue";

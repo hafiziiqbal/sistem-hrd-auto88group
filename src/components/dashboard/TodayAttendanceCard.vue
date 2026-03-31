@@ -9,20 +9,28 @@
       >
         Rekap Absensi Hari Ini
       </h2>
-      <button
-        @click="showFilter = !showFilter"
-        :class="
-          showFilter
-            ? 'bg-indigo-600 text-white'
-            : 'bg-indigo-50 text-indigo-600'
-        "
-        class="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
-      >
-        <v-icon size="18">{{
-          showFilter ? "mdi-close" : "mdi-filter-variant"
-        }}</v-icon>
-        Filter
-      </button>
+      <div class="flex gap-3">
+        <button
+          class="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+        >
+          <v-icon size="18">mdi-eye-outline</v-icon>
+          <span class="hidden sm:inline">Detail</span>
+        </button>
+        <button
+          @click="showFilter = !showFilter"
+          :class="
+            showFilter
+              ? 'bg-indigo-600 text-white'
+              : 'bg-indigo-50 text-indigo-600'
+          "
+          class="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+        >
+          <v-icon size="18">{{
+            showFilter ? "mdi-close" : "mdi-filter-variant"
+          }}</v-icon>
+          Filter
+        </button>
+      </div>
     </div>
 
     <v-expand-transition>
@@ -55,8 +63,7 @@
         </v-select>
       </div>
     </v-expand-transition>
-
-    <div class="space-y-3 w-full md:flex md:space-y-0">
+    <div class="space-y-3 w-full md:h-100 md:flex md:space-y-0 items-center">
       <div class="w-full">
         <apexchart
           width="100%"
@@ -91,9 +98,9 @@
                   :style="{ backgroundColor: chartColors[index] }"
                 ></div>
                 <span
-                  class="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 transition-colors capitalize"
+                  class="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 transition-colors"
                 >
-                  {{ item.name.replace("_", " ") }}
+                  {{ item.label }}
                 </span>
               </td>
               <td
@@ -117,12 +124,15 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import VueApexCharts from "vue3-apexcharts";
+import type { ApexOptions } from "apexcharts";
 import { useTheme } from "vuetify";
 
 const theme = useTheme();
+
 const apexchart = VueApexCharts;
 
 const showFilter = ref(false);
+// Filter States
 const selectedBranch = ref("Semua Cabang");
 const branchOptions = [
   "Semua Cabang",
@@ -154,17 +164,26 @@ const chartColors = [
   "#f43f5e", // sakit (Rose)
 ];
 
+// Transformasi data untuk ApexCharts
 const series = computed(() => Object.values(rawData));
-const labels = computed(() =>
-  Object.keys(rawData).map((key) => key.replace("_", " ").toUpperCase()),
-);
 const totalData = computed(() => series.value.reduce((a, b) => a + b, 0));
 
+const labels = computed(() => tableData.value.map((item) => item.label));
+
 const tableData = computed(() => {
-  return Object.keys(rawData).map((key, index) => ({
-    name: key,
-    value: series.value[index],
-  }));
+  return Object.keys(rawData).map((key, index) => {
+    // Fungsi untuk mengubah 'belum_absen' menjadi 'Belum Absen'
+    const formattedLabel = key
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    return {
+      name: key, // key asli (hadir)
+      label: formattedLabel, // label rapi (Hadir)
+      value: series.value[index],
+    };
+  });
 });
 
 const calculatePercentage = (value: number) => {
@@ -187,6 +206,7 @@ const chartOptions = computed(() => {
       width: 2,
       colors: [isDark ? "#0f172a" : "#ffffff"],
     },
+
     plotOptions: {
       pie: {
         donut: {
@@ -213,7 +233,23 @@ const chartOptions = computed(() => {
       },
     },
     dataLabels: { enabled: false },
-    legend: { show: false }, // Dimatikan karena sudah ada tabel di samping
+    legend: {
+      position: "bottom",
+      fontSize: "12px",
+      fontWeight: 500,
+      labels: {
+        colors: isDark ? "#cbd5e1" : "#475569",
+      },
+      markers: {
+        width: 10,
+        height: 10,
+        radius: 12,
+      },
+      itemMargin: {
+        horizontal: 10,
+        vertical: 5,
+      },
+    },
     tooltip: {
       theme: isDark ? "dark" : "light",
       y: {
@@ -223,3 +259,12 @@ const chartOptions = computed(() => {
   };
 });
 </script>
+
+<style scoped>
+/* Transisi halus saat ganti theme */
+.v-card {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+</style>

@@ -9,9 +9,16 @@ const router = createRouter({
       component: AdminLayout, // Layout membungkus rute di bawahnya
       children: [
         {
-          path: "", // Diakses via /dashboard
-          name: "Dashboard",
-          component: () => import("@/pages/index.vue"),
+          path: "/dashboard/personnel", // Diakses via /dashboard
+          name: "Dashboard Kepegawaian",
+          component: () => import("@/pages/dashboard/personnel.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/dashboard/", // Diakses via /dashboard
+          name: "Dashboard Absensi",
+          component: () => import("@/pages/dashboard/attendance.vue"),
+          meta: { requiresAuth: true },
         },
 
         // Tambahkan halaman lain di sini
@@ -22,6 +29,28 @@ const router = createRouter({
       component: import("@/pages/login.vue"),
     },
   ],
+});
+
+router.beforeEach((to, _from, next) => {
+  const token = localStorage.getItem("token");
+  const isAuthenticated = !!token;
+
+  if (to.path === "/") {
+    // Redirect dari root berdasarkan status login
+    return isAuthenticated ? next("/dashboard/") : next("/login");
+  }
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    // Akses halaman protected tanpa token → ke login
+    return next("/login");
+  }
+
+  if (to.path === "/login" && isAuthenticated) {
+    // Sudah login tapi mau ke login → redirect ke dashboard
+    return next("/dashboard/");
+  }
+
+  next();
 });
 
 export default router;

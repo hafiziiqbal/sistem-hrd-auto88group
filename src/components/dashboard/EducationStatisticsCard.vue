@@ -7,7 +7,7 @@
       <h2
         class="text-md font-bold text-slate-800 dark:text-slate-200 tracking-tight"
       >
-        Rekap Absensi Hari Ini
+        Pendidikan
       </h2>
       <button
         @click="showFilter = !showFilter"
@@ -26,37 +26,20 @@
     </div>
 
     <v-expand-transition>
-      <div
-        v-if="showFilter"
-        class="mb-4 px-1 space-y-4 md:space-y-0 md:flex gap-2"
-      >
+      <div v-if="showFilter" class="mb-4 px-1">
         <v-select
-          v-model="selectedBranch"
-          :items="branchOptions"
+          v-model="selectedFilter"
+          :items="filterOptions"
           label="Pilih Cabang"
           variant="outlined"
           density="compact"
+          class="mt-2"
           hide-details
           rounded="xl"
         ></v-select>
-
-        <v-select
-          v-model="selectedShift"
-          :items="shiftOptions"
-          label="Jam Kerja"
-          variant="outlined"
-          density="compact"
-          hide-details
-          rounded="xl"
-        >
-          <template v-slot:prepend-inner>
-            <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
-          </template>
-        </v-select>
       </div>
     </v-expand-transition>
-
-    <div class="space-y-3 w-full md:flex md:space-y-0">
+    <div class="space-y-3 w-full md:h-100 md:flex md:space-y-0 items-center">
       <div class="w-full">
         <apexchart
           width="100%"
@@ -74,7 +57,7 @@
             <tr
               class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800"
             >
-              <th class="pb-2 font-semibold">Status</th>
+              <th class="pb-2 font-semibold">Pendidikan</th>
               <th class="pb-2 font-semibold text-right">Jumlah</th>
               <th class="pb-2 font-semibold text-right text-indigo-500">%</th>
             </tr>
@@ -91,9 +74,9 @@
                   :style="{ backgroundColor: chartColors[index] }"
                 ></div>
                 <span
-                  class="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 transition-colors capitalize"
+                  class="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 transition-colors"
                 >
-                  {{ item.name.replace("_", " ") }}
+                  {{ item.name }}
                 </span>
               </td>
               <td
@@ -117,52 +100,49 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import VueApexCharts from "vue3-apexcharts";
+import type { ApexOptions } from "apexcharts";
 import { useTheme } from "vuetify";
 
 const theme = useTheme();
+
 const apexchart = VueApexCharts;
 
 const showFilter = ref(false);
-const selectedBranch = ref("Semua Cabang");
-const branchOptions = [
+const selectedFilter = ref(null);
+const filterOptions = [
   "Semua Cabang",
   "Autoplaza 88 (Pontianak)",
   "Auto 88 Kuburaya",
   "Auto 88 Sintang",
 ];
-
-const selectedShift = ref("Semua Jam Kerja");
-const shiftOptions = ["Semua Jam Kerja", "Reguler", "Piket"];
-
-// Data Absensi Terbaru
+// Data dari JSON
 const rawData = {
-  hadir: 32,
-  terlambat: 2,
-  belum_absen: 0,
-  cuti: 0,
-  izin: 0,
-  sakit: 0,
+  "SMA/SMK": 20,
+  D3: 0,
+  D4: 0,
+  S1: 10,
+  S2: 0,
+  S3: 0,
+  "Belum Diatur": 116,
 };
-
-// Warna yang disesuaikan dengan status (Hadir=Hijau, Terlambat=Kuning, Belum=Abu, dsb)
 const chartColors = [
-  "#10b981", // hadir (Emerald)
-  "#f59e0b", // terlambat (Amber)
-  "#94a3b8", // belum_absen (Slate)
-  "#6366f1", // cuti (Indigo)
-  "#8b5cf6", // izin (Violet)
-  "#f43f5e", // sakit (Rose)
+  "#6366f1",
+  "#8b5cf6",
+  "#ec4899",
+  "#f43f5e",
+  "#f59e0b",
+  "#10b981",
+  "#94a3b8",
 ];
 
+// Transformasi data untuk ApexCharts
 const series = computed(() => Object.values(rawData));
-const labels = computed(() =>
-  Object.keys(rawData).map((key) => key.replace("_", " ").toUpperCase()),
-);
+const labels = computed(() => Object.keys(rawData));
 const totalData = computed(() => series.value.reduce((a, b) => a + b, 0));
 
 const tableData = computed(() => {
-  return Object.keys(rawData).map((key, index) => ({
-    name: key,
+  return labels.value.map((name, index) => ({
+    name,
     value: series.value[index],
   }));
 });
@@ -172,6 +152,7 @@ const calculatePercentage = (value: number) => {
   return ((value / totalData.value) * 100).toFixed(1);
 };
 
+// Konfigurasi Chart
 const chartOptions = computed(() => {
   const isDark = theme.global.name.value === "dark";
 
@@ -179,13 +160,27 @@ const chartOptions = computed(() => {
     chart: {
       type: "donut",
       fontFamily: "Inter, sans-serif",
+      animations: {
+        enabled: true,
+        speed: 800,
+        animateGradually: { enabled: true, delay: 150 },
+      },
     },
     labels: labels.value,
-    colors: chartColors,
+    // Palet warna yang modern dan kontras
+    colors: [
+      "#6366f1",
+      "#8b5cf6",
+      "#ec4899",
+      "#f43f5e",
+      "#f59e0b",
+      "#10b981",
+      "#94a3b8",
+    ],
     stroke: {
       show: true,
       width: 2,
-      colors: [isDark ? "#0f172a" : "#ffffff"],
+      colors: [isDark ? "#0f172a" : "#ffffff"], // Border antar slice
     },
     plotOptions: {
       pie: {
@@ -195,7 +190,7 @@ const chartOptions = computed(() => {
             show: true,
             total: {
               show: true,
-              label: "Total Staff",
+              label: "Total",
               fontSize: "14px",
               fontWeight: 600,
               color: isDark ? "#94a3b8" : "#64748b",
@@ -212,14 +207,49 @@ const chartOptions = computed(() => {
         },
       },
     },
-    dataLabels: { enabled: false },
-    legend: { show: false }, // Dimatikan karena sudah ada tabel di samping
+    dataLabels: {
+      enabled: false, // Dimatikan agar lebih clean, data muncul di hover/center
+    },
+    legend: {
+      position: "bottom",
+      fontSize: "12px",
+      fontWeight: 500,
+      labels: {
+        colors: isDark ? "#cbd5e1" : "#475569",
+      },
+      markers: {
+        width: 10,
+        height: 10,
+        radius: 12,
+      },
+      itemMargin: {
+        horizontal: 10,
+        vertical: 5,
+      },
+    },
     tooltip: {
       theme: isDark ? "dark" : "light",
       y: {
         formatter: (val: number) => `${val} Orang`,
       },
     },
+    states: {
+      hover: {
+        filter: { type: "darken", value: 0.9 },
+      },
+    },
+    // theme: {
+    //   mode: isDark ? "dark" : "light",
+    // },
   };
 });
 </script>
+
+<style scoped>
+/* Transisi halus saat ganti theme */
+.v-card {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+</style>
