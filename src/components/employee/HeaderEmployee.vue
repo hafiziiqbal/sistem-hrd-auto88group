@@ -9,7 +9,10 @@
         class="m-0 p-0 text-gray-500 dark:text-gray-300 text-sm"
       ></v-breadcrumbs>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 justify-start">
+    <div
+      v-if="isVisible('index')"
+      class="space-y-1 space-x-1 md:space-y-1 md:space-x-1 md:flex gap-2 justify-start"
+    >
       <v-btn
         prepend-icon="mdi-family-tree"
         variant="flat"
@@ -19,14 +22,23 @@
       <v-btn
         prepend-icon="mdi-file-import"
         variant="flat"
-        class="bg-teal-500 dark:bg-teal-500 text-sm"
+        class="bg-teal-500 dark:bg-teal-500 text-sm text-white"
         >Import Data Karyawan</v-btn
       >
       <v-btn
         prepend-icon="mdi-plus"
         variant="flat"
-        class="bg-sky-500 dark:bg-sky-500 text-sm"
+        class="bg-sky-500 dark:bg-sky-500 text-sm text-white"
         >Tambah Data</v-btn
+      >
+    </div>
+    <div v-if="isVisible('back')">
+      <v-btn
+        to="/master/employee"
+        prepend-icon="mdi-keyboard-backspace"
+        variant="flat"
+        class="bg-gray-500 dark:bg-gray-500 text-sm text-white"
+        >Kembali</v-btn
       >
     </div>
   </v-card>
@@ -37,6 +49,13 @@ const items = [
   { title: "Master", disabled: false, href: "/master" },
   { title: "Karyawan", disabled: true, href: "/master/karyawan" },
 ];
+const props = defineProps({
+  hideFields: {
+    type: Array,
+    default: () => [], // Defaultnya tidak ada yang disembunyikan
+  },
+});
+const isVisible = (fieldName: string) => !props.hideFields.includes(fieldName);
 </script>
 
 <style scoped>

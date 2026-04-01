@@ -3,8 +3,11 @@
     <div v-if="isVisible('nama')">
       <label class="input-label">Nama Karyawan</label>
       <v-autocomplete
-        v-model="form.nama"
-        :items="listKaryawan"
+        v-model="form.user_id"
+        :items="listUser"
+        :loading="userStore.isLoadingData"
+        item-title="name"
+        item-value="value"
         prepend-inner-icon="mdi-account"
         placeholder="Cari nama..."
         variant="outlined"
@@ -13,31 +16,55 @@
         class="custom-input"
         hide-details="auto"
         clearable
-      ></v-autocomplete>
+        no-filter
+        @update:search="onSearchUser"
+        @update:model-value="onSelectUser"
+      >
+        <template v-slot:item="{ props, item }">
+          <v-list-item
+            v-bind="props"
+            :title="item.name"
+            :subtitle="item.email"
+          />
+        </template>
+
+        <!-- ← tambah selection slot untuk paksa tampilkan text yang benar -->
+        <template v-slot:selection="{ item }">
+          {{ item.name }}
+        </template>
+      </v-autocomplete>
     </div>
 
     <div v-if="isVisible('jabatan')">
       <label class="input-label">Jabatan</label>
       <v-autocomplete
-        v-model="form.jabatan"
-        :items="listJabatan"
+        v-model="form.master_position_id"
+        :items="listPosition"
+        :loading="positioinStore.isLoadingData"
+        item-title="title"
+        item-value="value"
         prepend-inner-icon="mdi-briefcase-outline"
-        placeholder="Pilih jabatan"
+        placeholder="Pilih jabatan..."
         variant="outlined"
         density="compact"
         color="primary"
         class="custom-input"
         hide-details="auto"
         clearable
+        no-filter
+        @update:search="onSearchPosition"
       ></v-autocomplete>
     </div>
 
     <div v-if="isVisible('cabang')">
       <label class="input-label">Cabang</label>
       <v-autocomplete
-        v-model="form.cabang"
-        :items="listCabang"
+        v-model="form.branch_id"
+        :items="listBranch"
+        :loading="branchStore.isLoadingData"
         prepend-inner-icon="mdi-map-marker-outline"
+        item-title="alias"
+        item-value="value"
         placeholder="Lokasi cabang"
         variant="outlined"
         density="compact"
@@ -45,15 +72,29 @@
         class="custom-input"
         hide-details="auto"
         clearable
-      ></v-autocomplete>
+        no-filter
+        @update:search="onSearchBranch"
+      >
+        <template v-slot:item="{ props, item }">
+          <v-list-item
+            v-bind="props"
+            :title="item.alias"
+            :subtitle="item.title"
+          >
+          </v-list-item>
+        </template>
+      </v-autocomplete>
     </div>
 
     <div v-if="isVisible('pendidikan')">
       <label class="input-label">Pendidikan</label>
       <v-autocomplete
-        v-model="form.pendidikan"
-        :items="listPendidikan"
+        v-model="form.hrd_master_education_id"
+        :items="listEducation"
+        :loading="educationStore.isLoadingData"
         prepend-inner-icon="mdi-school-outline"
+        item-title="title"
+        item-value="value"
         placeholder="Pilih pendidikan"
         variant="outlined"
         density="compact"
@@ -61,14 +102,18 @@
         class="custom-input"
         hide-details="auto"
         clearable
+        no-filter
+        @update:search="onSearchEducation"
       ></v-autocomplete>
     </div>
 
     <div v-if="isVisible('status')">
       <label class="input-label">Status</label>
       <v-autocomplete
-        v-model="form.status"
-        :items="['Aktif', 'Non-Aktif', 'Cuti']"
+        v-model="form.status_id"
+        :items="listStatus"
+        item-title="title"
+        item-value="value"
         prepend-inner-icon="mdi-check-circle-outline"
         placeholder="Pilih status"
         variant="outlined"
@@ -85,7 +130,7 @@
       <label class="input-label">Jenis Kelamin</label>
       <v-autocomplete
         v-model="form.gender"
-        :items="['Laki-laki', 'Perempuan']"
+        :items="listGender"
         prepend-inner-icon="mdi-gender-male-female"
         placeholder="Pilih jenis kelamin"
         variant="outlined"
@@ -98,7 +143,19 @@
     </div>
 
     <div>
+      <v-checkbox
+        v-model="form.show_deleted"
+        label="Tampilkan User Dihapus"
+        color="text-red-500"
+        hide-details
+        density="compact"
+        class="mt-0"
+      ></v-checkbox>
+    </div>
+
+    <div>
       <v-btn
+        @click="onFilter"
         color="primary"
         class="px-8 font-weight-bold text-white"
         variant="flat"
@@ -112,7 +169,100 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import { useDebounceFn } from "@/composables/UseDebounce";
+import { useUserStore } from "@/stores/user.store";
+import { usePositionStore } from "@/stores/position.store";
+import { useBranchStore } from "@/stores/branch.store";
+import { useEducationStore } from "@/stores/education.store";
+import type { UserDatatablesParams } from "@/api/modules/user.api";
+
+const userStore = useUserStore();
+const positioinStore = usePositionStore();
+const branchStore = useBranchStore();
+const educationStore = useEducationStore();
+
+const isSelecting = ref(false);
+const selectedUserText = ref<string>("");
+const listUser = computed(() =>
+  userStore.usersData.map((user) => ({
+    name: user.name,
+    email: user.email,
+    value: user.id,
+  })),
+);
+const listPosition = computed(() =>
+  positioinStore.positionData.map((user) => ({
+    title: user.name,
+    value: user.id,
+  })),
+);
+const listBranch = computed(() =>
+  branchStore.branchData.map((branch) => ({
+    title: branch.name,
+    alias: branch.alias,
+    value: branch.id,
+  })),
+);
+const listEducation = computed(() =>
+  educationStore.educationData.map((education) => ({
+    title: education.name,
+    value: education.id,
+  })),
+);
+const listStatus = [
+  { value: 1, title: "Kontrak" },
+  { value: 2, title: "Tetap" },
+  { value: 3, title: "Resign" },
+  { value: 4, title: "Dikeluarkan" },
+];
+const listGender = [
+  { value: "M", title: "Laki-laki" },
+  { value: "F", title: "Perempuan" },
+];
+
+const onSearchUser = useDebounceFn((val: string) => {
+  if (isSelecting.value) return;
+  if (val === selectedUserText.value) return;
+  userStore.userDataParams.search = val ?? "";
+  userStore.fetchUsersData();
+}, 400);
+function onSelectUser(value: number | null) {
+  if (!value) {
+    selectedUserText.value = "";
+    isSelecting.value = false;
+    return;
+  }
+
+  isSelecting.value = true; // ← set flag sebelum Vuetify trigger search
+  const selected = listUser.value.find((u) => u.value === value);
+  if (selected) selectedUserText.value = selected.name;
+
+  // Reset flag setelah debounce selesai (lebih dari 400ms)
+  setTimeout(() => {
+    isSelecting.value = false;
+  }, 500);
+}
+const onSearchPosition = useDebounceFn((val: string) => {
+  positioinStore.positionDataParams.search = val ?? "";
+  positioinStore.fetchPositionData();
+}, 400);
+const onSearchBranch = useDebounceFn((val: string) => {
+  branchStore.branchDataParams.search = val ?? "";
+  branchStore.fetchBranchData();
+}, 400);
+const onSearchEducation = useDebounceFn((val: string) => {
+  educationStore.educationDataParams.search = val ?? "";
+  educationStore.fetchEducationData();
+}, 400);
+
+onMounted(() => {
+  userStore.fetchUsersData();
+  positioinStore.fetchPositionData();
+  branchStore.fetchBranchData();
+  educationStore.fetchEducationData();
+});
+
 const props = defineProps({
   hideFields: {
     type: Array,
@@ -122,25 +272,23 @@ const props = defineProps({
 
 const isVisible = (fieldName: string) => !props.hideFields.includes(fieldName);
 
-const form = ref({
-  nama: null,
-  jabatan: null,
-  cabang: null,
-  pendidikan: null, // Tambahkan ini
-  status: null,
-  gender: null,
-});
+const emit = defineEmits<{
+  filter: [value: Partial<UserDatatablesParams>];
+}>();
 
-// Data Dummy
-const listKaryawan = [
-  "Budi Santoso",
-  "Siti Aminah",
-  "Andi Wijaya",
-  "Dewi Lestari",
-];
-const listJabatan = ["Manager", "Supervisor", "Staff Admin", "IT Support"];
-const listCabang = ["Jakarta", "Surabaya", "Bandung", "Medan"];
-const listPendidikan = ["SMA/SMK", "D3", "S1", "S2", "S3"]; // Tambahkan ini
+function onFilter() {
+  emit("filter", { ...form });
+}
+
+const form = reactive<Partial<UserDatatablesParams>>({
+  user_id: undefined,
+  master_position_id: undefined,
+  branch_id: undefined,
+  hrd_master_education_id: undefined,
+  status_id: undefined,
+  gender: undefined,
+  show_deleted: false,
+});
 </script>
 
 <style scoped>

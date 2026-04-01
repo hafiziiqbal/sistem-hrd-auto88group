@@ -34,6 +34,12 @@ const router = createRouter({
           component: () => import("@/pages/master/employee.vue"),
           meta: { requiresAuth: true },
         },
+        {
+          path: "/master/employee/detail/:id",
+          name: "Master Detail Karyawan",
+          component: () => import("@/pages/master/employee-detail.vue"),
+          meta: { requiresAuth: true },
+        },
       ],
     },
     {

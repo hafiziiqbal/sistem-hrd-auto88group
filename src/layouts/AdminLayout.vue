@@ -152,6 +152,7 @@
             >
             <v-btn
               to="/master/employee"
+              :active="$route.path.startsWith('/master/employee')"
               variant="text"
               size="small"
               prepend-icon="mdi-account-group"
@@ -349,6 +350,7 @@
             ></v-list-item>
             <v-list-item
               to="/master/employee"
+              :active="$route.path.startsWith('/master/employee')"
               title="Karyawan"
               value="karyawan"
               active-class="text-indigo-600 dark:text-indigo-200"
@@ -571,9 +573,7 @@ const toggleDrawerAndScroll = () => {
   }
 };
 
-const handleLogout = () => {
-  console.log("Logging out...");
-};
+const handleLogout = () => {};
 </script>
 
 <style scoped>

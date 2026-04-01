@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-5">
-    <header-employee />
+    <header-employee :hide-fields="['back']" />
     <v-sheet class="p-3 rounded-lg shadow-md">
       <v-tabs v-model="tab" color="primary" class="text-sm" show-arrows>
         <v-tab prepend-icon="mdi-account-group" value="one"
