@@ -5,13 +5,16 @@ import {
   type User,
   type UserDataParams,
   type UserDatatablesParams,
+  type UserSelectedParams,
 } from "@/api/modules/user.api";
 
 export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const usersData = ref<User[]>([]);
+  const usersSelected = ref<User | null>(null);
   const isLoading = ref(false);
   const isLoadingData = ref(false);
+  const isLoadingSelected = ref(false);
   const totalRecords = ref(0);
 
   const params = reactive<UserDatatablesParams>({
@@ -28,6 +31,9 @@ export const useUserStore = defineStore("user", () => {
   });
   const userDataParams = reactive<UserDataParams>({
     search: "",
+  });
+  const userSelectedParams = reactive<UserSelectedParams>({
+    id: "",
   });
 
   async function fetchUsers() {
@@ -51,6 +57,15 @@ export const useUserStore = defineStore("user", () => {
       isLoadingData.value = false;
     }
   }
+  async function fetchUsersSelected() {
+    isLoadingSelected.value = true;
+    try {
+      const res = await userApi.getSelected({ ...userSelectedParams });
+      usersSelected.value = res.data;
+    } finally {
+      isLoadingSelected.value = false;
+    }
+  }
 
   function toggleShowDeleted() {
     params.show_deleted = !params.show_deleted;
@@ -61,13 +76,17 @@ export const useUserStore = defineStore("user", () => {
   return {
     users,
     usersData,
+    usersSelected,
     isLoading,
     isLoadingData,
+    isLoadingSelected,
     totalRecords,
     params,
     userDataParams,
+    userSelectedParams,
     fetchUsers,
     fetchUsersData,
     toggleShowDeleted,
+    fetchUsersSelected,
   };
 });

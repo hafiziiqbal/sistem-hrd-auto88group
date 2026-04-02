@@ -201,11 +201,13 @@ import FilterUsers from "./FilterUsers.vue";
 import { useUserStore } from "@/stores/user.store";
 import type { UserDatatablesParams } from "@/api/modules/user.api";
 import { useRouter } from "vue-router";
+import { useEmployeeStatus } from "@/composables/UseEmployeeStatus";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const store = useUserStore();
 const karyawan = computed(() => store.users);
 const router = useRouter();
+const { statusLabel, statusColor } = useEmployeeStatus();
 
 onMounted(() => store.fetchUsers());
 
@@ -220,54 +222,17 @@ const headers = [
   { title: "Foto", key: "foto", sortable: false },
   { title: "Karyawan", key: "karyawan", sortable: false },
   { title: "Cabang", key: "cabang", sortable: false },
-  { title: "Jabatan", key: "position", sortable: false }, // ✅ fix: 'jabatan' → 'position'
-  { title: "L/P", key: "gender", sortable: false }, // ✅ fix: 'jenis_kelamin' → 'gender'
+  { title: "Jabatan", key: "position", sortable: false },
+  { title: "L/P", key: "gender", sortable: false },
   { title: "Status", key: "status", sortable: false },
   { title: "Prospek", key: "prospect", sortable: false, align: "center" },
   { title: "Aksi", key: "actions", sortable: false, align: "end" },
 ];
 
 function onFilter(filterValues: Partial<UserDatatablesParams>) {
-  console.log("ditekan");
   store.params.start = 0;
   Object.assign(store.params, filterValues);
   store.fetchUsers();
-}
-
-const STATUS_MAP: Record<number, { label: string; container: string }> = {
-  1: {
-    label: "Kontrak",
-    container:
-      "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  },
-  2: {
-    label: "Tetap",
-    container:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  },
-  3: {
-    label: "Resign",
-    container:
-      "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
-  },
-  4: {
-    label: "Dikeluarkan",
-    container: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  },
-  5: {
-    label: "Pensiun",
-    container:
-      "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400",
-  },
-};
-function statusLabel(id: number): string {
-  return STATUS_MAP[id]?.label ?? "-";
-}
-function statusColor(id: number): string {
-  return (
-    STATUS_MAP[id]?.container ??
-    "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
-  );
 }
 
 const PROSPECT_MAP: Record<number, { label: string; container: string }> = {
@@ -303,8 +268,6 @@ const openImage = (item: any) => {
 };
 
 function goToDetail(item: any) {
-  console.log("state yang dikirim:", item);
-
   router.push({
     name: "Master Detail Karyawan",
     params: { id: item.id },
