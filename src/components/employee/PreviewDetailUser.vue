@@ -35,58 +35,68 @@
         <v-divider class="mb-6"></v-divider>
         <v-row gap="15">
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">NIK</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">NIK</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.nik ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="3">
-            <div class="text-gray-500 text-sm">Nickname</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Nickname</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.name ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="3">
-            <div class="text-gray-500 text-sm">Nama Lengkap</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Nama Lengkap
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.full_name ?? "-" }}
             </div>
           </v-col>
 
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Pendidikan Terakhir</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Pendidikan Terakhir
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.education?.name ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6"> </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Gelar Depan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Gelar Depan
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.front_title ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Gelar Belakang</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Gelar Belakang
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.back_title ?? "-" }}
             </div>
           </v-col>
 
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Nomor HP</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Nomor HP</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.phone_number ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Email</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Email</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.email ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Jenis Kelamin</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Jenis Kelamin
+            </div>
             <div class="font-bold text-sm">
               {{
                 userStore.usersSelected?.gender == null
@@ -98,62 +108,80 @@
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Status Pernikahan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Status Pernikahan
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.marital_status?.name ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Golongan Darah</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Golongan Darah
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.blood_type?.name ?? "-" }}
             </div>
           </v-col>
 
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Tempat Lahir</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Tempat Lahir
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.birth_place ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Tanggal Lahir</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Tanggal Lahir
+            </div>
             <div class="font-bold text-sm">
               {{ toDayMonthYear(userStore.usersSelected?.birth_date) }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Agama</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Agama</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.religion?.name ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Nomor BPJS Kesehatan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Nomor BPJS Kesehatan
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.bpjs_health_number ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Nomor BPJS Ketenagakerjaan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Nomor BPJS Ketenagakerjaan
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.bpjs_employment_number ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Jumlah Anak</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Jumlah Anak
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.number_of_children ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Nomor HP Darurat</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Nomor HP Darurat
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.emergency_phone_number ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Nama Kontak Darurat</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Nama Kontak Darurat
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.emergency_contact_name ?? "-" }}
             </div>
@@ -208,51 +236,57 @@
         <v-divider class="mb-6"></v-divider>
         <v-row gap="15">
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Provinsi</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Provinsi</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.province?.name ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Kabupaten</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Kabupaten
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.regency?.name ?? "-" }}
             </div>
           </v-col>
 
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Kecamatan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Kecamatan
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.disctrict?.name ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Kelurahan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Kelurahan
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.village?.name ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">RT</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">RT</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.neighborhood_unit ?? "-" }}
             </div>
           </v-col>
 
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">RW</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">RW</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.community_unit ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="12">
-            <div class="text-gray-500 text-sm">Alamat</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Alamat</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.current_address ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="12">
-            <div class="text-gray-500 text-sm">Kode Pos</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Kode Pos</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.zip_code ?? "-" }}
             </div>
@@ -269,7 +303,9 @@
         <v-divider class="mb-6"></v-divider>
         <v-row gap="15">
           <v-col cols="12" md="12">
-            <div class="text-gray-500 text-sm">ID Karyawan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              ID Karyawan
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.employee_id ?? "-" }}
             </div>
@@ -282,7 +318,7 @@
               userStore.usersSelected.level === 'telemarketing'
             "
           >
-            <div class="text-gray-500 text-sm">Inisial</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Inisial</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.telemarketing?.inisial ?? "-" }}
             </div>
@@ -297,32 +333,40 @@
                 userStore.usersSelected.level === 'admin_telemarketing')
             "
           >
-            <div class="text-gray-500 text-sm">Urutan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Urutan</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.telemarketing?.urutan ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Jabatan</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Jabatan</div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.position ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Cabang</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Cabang</div>
             <div class="font-bold text-sm">
-              {{ userStore.usersSelected?.branch?.name ?? "-" }}
+              {{
+                userStore.usersSelected?.branch?.alias
+                  ? userStore.usersSelected.branch.alias +
+                    " - " +
+                    userStore.usersSelected.branch.name
+                  : "-"
+              }}
             </div>
           </v-col>
 
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Jatah Cuti</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Jatah Cuti
+            </div>
             <div class="font-bold text-sm">
               {{ userStore.usersSelected?.remaining_leave ?? "-" }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Status</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">Status</div>
             <div
               class="font-bold text-sm inline-block px-2 py-0.5 rounded"
               :class="statusColor(userStore.usersSelected?.status_id ?? 0)"
@@ -334,7 +378,9 @@
           <!-- Status 1: Kontrak → Tanggal Mulai + Tanggal Selesai -->
           <template v-if="userStore.usersSelected?.status_id === 1">
             <v-col cols="12" md="6">
-              <div class="text-gray-500 text-sm">Tanggal Mulai Kontrak</div>
+              <div class="text-gray-500 text-sm dark:text-gray-300">
+                Tanggal Mulai Kontrak
+              </div>
               <div class="font-bold text-sm">
                 {{
                   toDayMonthYear(
@@ -344,7 +390,9 @@
               </div>
             </v-col>
             <v-col cols="12" md="6">
-              <div class="text-gray-500 text-sm">Tanggal Selesai Kontrak</div>
+              <div class="text-gray-500 text-sm dark:text-gray-300">
+                Tanggal Selesai Kontrak
+              </div>
               <div class="font-bold text-sm">
                 {{
                   toDayMonthYear(userStore.usersSelected?.effective_end_date) ??
@@ -357,7 +405,9 @@
           <!-- Status 2: Tetap → Tanggal Ditetapkan -->
           <template v-else-if="userStore.usersSelected?.status_id === 2">
             <v-col cols="12" md="6">
-              <div class="text-gray-500 text-sm">Tanggal Ditetapkan</div>
+              <div class="text-gray-500 text-sm dark:text-gray-300">
+                Tanggal Ditetapkan
+              </div>
               <div class="font-bold text-sm">
                 {{
                   toDayMonthYear(
@@ -373,7 +423,9 @@
             v-else-if="[3, 4].includes(userStore.usersSelected?.status_id ?? 0)"
           >
             <v-col cols="12" md="6">
-              <div class="text-gray-500 text-sm">Tanggal Keluar</div>
+              <div class="text-gray-500 text-sm dark:text-gray-300">
+                Tanggal Keluar
+              </div>
               <div class="font-bold text-sm">
                 {{
                   toDayMonthYear(userStore.usersSelected?.effective_end_date) ??
@@ -386,7 +438,9 @@
           <!-- Status 5: Pensiun → Tanggal Pensiun -->
           <template v-else-if="(userStore.usersSelected?.status_id ?? 0) === 5">
             <v-col cols="12" md="6">
-              <div class="text-gray-500 text-sm">Tanggal Pensiun</div>
+              <div class="text-gray-500 text-sm dark:text-gray-300">
+                Tanggal Pensiun
+              </div>
               <div class="font-bold text-sm">
                 {{
                   toDayMonthYear(userStore.usersSelected?.effective_end_date) ??
@@ -397,7 +451,9 @@
           </template>
 
           <v-col cols="12" md="6">
-            <div class="text-gray-500 text-sm">Join Date</div>
+            <div class="text-gray-500 text-sm dark:text-gray-300">
+              Join Date
+            </div>
             <div class="font-bold text-sm">
               {{ toDayMonthYear(userStore.usersSelected?.join_date) ?? "-" }}
             </div>

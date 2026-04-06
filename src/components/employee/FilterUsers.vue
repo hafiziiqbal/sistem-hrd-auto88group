@@ -23,14 +23,12 @@
         <template v-slot:item="{ props, item }">
           <v-list-item
             v-bind="props"
-            :title="item.name"
+            :title="formatName(item)"
             :subtitle="item.email"
           />
         </template>
-
-        <!-- ← tambah selection slot untuk paksa tampilkan text yang benar -->
         <template v-slot:selection="{ item }">
-          {{ item.name }}
+          {{ formatName(item) }}
         </template>
       </v-autocomplete>
     </div>
@@ -176,7 +174,9 @@ import { usePositionStore } from "@/stores/position.store";
 import { useBranchStore } from "@/stores/branch.store";
 import { useEducationStore } from "@/stores/education.store";
 import type { UserDatatablesParams } from "@/api/modules/user.api";
+import { useFormatName } from "@/composables/useFormatName";
 
+const { formatName } = useFormatName();
 const userStore = useUserStore();
 const positioinStore = usePositionStore();
 const branchStore = useBranchStore();
@@ -187,6 +187,7 @@ const selectedUserText = ref<string>("");
 const listUser = computed(() =>
   userStore.usersData.map((user) => ({
     name: user.name,
+    full_name: user.full_name,
     email: user.email,
     value: user.id,
   })),

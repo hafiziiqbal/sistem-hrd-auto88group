@@ -50,7 +50,7 @@
           <span
             @click="goToDetail(item)"
             class="font-bold text-blue-500 dark:text-blue-300 cursor-pointer"
-            >{{ item.name }}</span
+            >{{ formatName(item) }}</span
           >
           <span class="text-sm text-gray-500 dark:text-gray-300">{{
             item.email
@@ -208,8 +208,10 @@ import { useUserStore } from "@/stores/user.store";
 import type { UserDatatablesParams } from "@/api/modules/user.api";
 import { useRouter } from "vue-router";
 import { useEmployeeStatus } from "@/composables/UseEmployeeStatus";
+import { useFormatName } from "@/composables/useFormatName";
 
 const apiUrl = import.meta.env.VITE_API_URL;
+const { formatName } = useFormatName();
 const store = useUserStore();
 const karyawan = computed(() => store.users);
 const router = useRouter();

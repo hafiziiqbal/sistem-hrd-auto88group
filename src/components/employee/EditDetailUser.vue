@@ -30,7 +30,7 @@
 
     <v-snackbar
       v-model="showErrorSnackbar"
-      color="error"
+      color="text-red-500"
       timeout="4000"
       location="top"
     >
@@ -842,115 +842,179 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const formRef = ref();
 const isSaving = ref(false);
 const imagePreview = ref<string | null>(null);
-const listEducation = computed(() =>
-  educationStore.educationData.map((education) => ({
-    title: education.name,
-    value: education.id,
-  })),
-);
-const listMaritalStatus = computed(() =>
-  maritalStatusStore.maritalStatusData.map((maritalStatus) => ({
-    title: maritalStatus.name,
-    value: maritalStatus.id,
-  })),
-);
-const listPosition = computed(() =>
-  positionStore.positionData.map((position) => ({
-    title: position.name,
-    level_name: position.level_name,
-    value: position.id,
-  })),
-);
-const listBranch = computed(() =>
-  branchStore.branchData.map((branch) => ({
-    title: branch.name,
-    alias: branch.alias,
-    value: branch.id,
-  })),
-);
-const listBloodType = computed(() =>
-  bloodTypeStore.bloodTypeData.map((bloodType) => ({
-    title: bloodType.name,
-    value: bloodType.id,
-  })),
-);
-const listReligion = computed(() =>
-  religionStore.religionData.map((religion) => ({
-    title: religion.name,
-    value: religion.id,
-  })),
-);
-const listProvince = computed(() =>
-  provinceStore.province.map((province) => ({
-    title: province.name,
-    value: province.id,
-  })),
-);
-const listRegency = computed(() =>
-  regencyStore.regency.map((regency) => ({
-    title: regency.name,
-    value: regency.id,
-  })),
-);
-const listDistrict = computed(() =>
-  districtStore.district.map((district) => ({
-    title: district.name,
-    value: district.id,
-  })),
-);
-const listVillage = computed(() =>
-  villageStore.village.map((village) => ({
-    title: village.name,
-    value: village.id,
-  })),
-);
+
+const searchEducation = ref("");
+const searchMaritalStatus = ref("");
+const searchPosition = ref("");
+const searchBranch = ref("");
+const searchBloodType = ref("");
+const searchReligion = ref("");
+const searchProvince = ref("");
+const searchRegency = ref("");
+const searchDistrict = ref("");
+const searchVillage = ref("");
+
+const listEducation = computed(() => {
+  const keyword = searchEducation.value.toLowerCase();
+
+  return educationStore.educationData
+    .filter((education) =>
+      keyword ? education.name.toLowerCase().includes(keyword) : true,
+    )
+    .map((education) => ({
+      title: education.name,
+      value: education.id,
+    }));
+});
+const listMaritalStatus = computed(() => {
+  const keyword = searchMaritalStatus.value.toLowerCase();
+
+  return maritalStatusStore.maritalStatusData
+    .filter((maritalStatus) =>
+      keyword ? maritalStatus.name.toLowerCase().includes(keyword) : true,
+    )
+    .map((maritalStatus) => ({
+      title: maritalStatus.name,
+      value: maritalStatus.id,
+    }));
+});
+const listPosition = computed(() => {
+  const keyword = searchPosition.value.toLowerCase();
+
+  return positionStore.positionData
+    .filter((position) =>
+      keyword ? position.name.toLowerCase().includes(keyword) : true,
+    )
+    .map((position) => ({
+      title: position.name,
+      value: position.id,
+      level_name: position.level_name,
+    }));
+});
+const listBranch = computed(() => {
+  const keyword = searchBranch.value.toLowerCase();
+  return branchStore.branchData
+    .filter((branch) => {
+      if (!keyword) return true;
+
+      return (
+        branch.name.toLowerCase().includes(keyword) ||
+        branch.alias.toLowerCase().includes(keyword)
+      );
+    })
+    .map((branch) => ({
+      title: branch.name,
+      alias: branch.alias,
+      value: branch.id,
+    }));
+});
+const listBloodType = computed(() => {
+  const keyword = searchBloodType.value.toLowerCase();
+  return bloodTypeStore.bloodTypeData
+    .filter((bloodType) => {
+      if (!keyword) return true;
+      return bloodType.name.toLowerCase().includes(keyword);
+    })
+    .map((bloodType) => ({
+      title: bloodType.name,
+      value: bloodType.id,
+    }));
+});
+const listReligion = computed(() => {
+  const keyword = searchReligion.value.toLowerCase();
+  return religionStore.religionData
+    .filter((religion) => {
+      if (!keyword) return true;
+      return religion.name.toLowerCase().includes(keyword);
+    })
+    .map((religion) => ({
+      title: religion.name,
+      value: religion.id,
+    }));
+});
+const listProvince = computed(() => {
+  const keyword = searchProvince.value.toLowerCase();
+  return provinceStore.province
+    .filter((province) => {
+      if (!keyword) return true;
+      return province.name.toLowerCase().includes(keyword);
+    })
+    .map((province) => ({
+      title: province.name,
+      value: province.id,
+    }));
+});
+const listRegency = computed(() => {
+  const keyword = searchRegency.value.toLowerCase();
+  return regencyStore.regency
+    .filter((regency) => {
+      if (!keyword) return true;
+      return regency.name.toLowerCase().includes(keyword);
+    })
+    .map((regency) => ({
+      title: regency.name,
+      value: regency.id,
+    }));
+});
+const listDistrict = computed(() => {
+  const keyword = searchDistrict.value.toLowerCase();
+  return districtStore.district
+    .filter((district) => {
+      if (!keyword) return true;
+      return district.name.toLowerCase().includes(keyword);
+    })
+    .map((district) => ({
+      title: district.name,
+      value: district.id,
+    }));
+});
+const listVillage = computed(() => {
+  const keyword = searchVillage.value.toLowerCase();
+  return villageStore.village
+    .filter((village) => {
+      if (!keyword) return true;
+      return village.name.toLowerCase().includes(keyword);
+    })
+    .map((village) => ({
+      title: village.name,
+      value: village.id,
+    }));
+});
 const listGender = [
   { label: "Laki-Laki", value: "M" },
   { label: "Perempuan", value: "F" },
 ];
 
-const onSearchEducation = useDebounceFn((val: string) => {
-  console.log("asdfas");
-  educationStore.educationDataParams.search = val ?? "";
-  educationStore.fetchEducationData();
-}, 400);
-const onSearchMaritalStatus = useDebounceFn((val: string) => {
-  maritalStatusStore.maritalStatusDataParams.search = val ?? "";
-  maritalStatusStore.fetchMaritalStatusData();
-}, 400);
-const onSearchPosition = useDebounceFn((val: string) => {
-  positionStore.positionDataParams.search = val ?? "";
-  positionStore.fetchPositionData();
-}, 400);
-const onSearchBranch = useDebounceFn((val: string) => {
-  branchStore.branchDataParams.search = val ?? "";
-  branchStore.fetchBranchData();
-}, 400);
-const onSearchBloodType = useDebounceFn((val: string) => {
-  bloodTypeStore.bloodTypeDataParams.search = val ?? "";
-  bloodTypeStore.fetchBloodTypeData();
-}, 400);
-const onSearchReligion = useDebounceFn((val: string) => {
-  religionStore.religionDataParams.search = val ?? "";
-  religionStore.fetchReligionData();
-}, 400);
-const onSearchProvince = useDebounceFn((val: string) => {
-  provinceStore.provinceParams.search = val ?? "";
-  provinceStore.fetchProvince();
-}, 400);
-const onSearchRegency = useDebounceFn((val: string) => {
-  regencyStore.regencyParams.search = val ?? "";
-  regencyStore.fetchRegency();
-}, 400);
-const onSearchDistrict = useDebounceFn((val: string) => {
-  districtStore.districtParams.search = val ?? "";
-  districtStore.fetchDistrict();
-}, 400);
-const onSearchVillage = useDebounceFn((val: string) => {
-  villageStore.villageParams.search = val ?? "";
-  villageStore.fetchVillage();
-}, 400);
-
+const onSearchEducation = (val: any) => {
+  searchEducation.value = val ?? "";
+};
+const onSearchMaritalStatus = (val: any) => {
+  searchEducation.value = val ?? "";
+};
+const onSearchPosition = (val: any) => {
+  searchPosition.value = val ?? "";
+};
+const onSearchBranch = (val: any) => {
+  searchBranch.value = val ?? "";
+};
+const onSearchBloodType = (val: any) => {
+  searchBloodType.value = val ?? "";
+};
+const onSearchReligion = (val: any) => {
+  searchReligion.value = val ?? "";
+};
+const onSearchProvince = (val: any) => {
+  searchProvince.value = val ?? "";
+};
+const onSearchRegency = (val: any) => {
+  searchRegency.value = val ?? "";
+};
+const onSearchDistrict = (val: any) => {
+  searchDistrict.value = val ?? "";
+};
+const onSearchVillage = (val: any) => {
+  searchVillage.value = val ?? "";
+};
 // ── Form state ──────────────────────────────────────────────────────────────
 const form = reactive({
   nik: "",
