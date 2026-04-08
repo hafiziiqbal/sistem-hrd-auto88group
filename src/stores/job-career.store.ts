@@ -37,9 +37,23 @@ export const useJobCareerStore = defineStore("job-career", () => {
     updateError.value = null;
     try {
       const res = await jobCareerApi.updateJobCareer(id, params);
-      // update data di list jika ada
+      const updatedItem = res.data;
+
+      // jika item yang diupdate is_active = 1
+      if (updatedItem.is_active === 1) {
+        JobCareerSelected.value = JobCareerSelected.value.map((item) => ({
+          ...item,
+          is_active: 0,
+        }));
+      }
+
+      // update / replace item di list
       const index = JobCareerSelected.value.findIndex((u) => u.id === id);
-      if (index !== -1) JobCareerSelected.value[index] = res.data;
+      if (index !== -1) {
+        JobCareerSelected.value[index] = updatedItem;
+      } else {
+        JobCareerSelected.value.push(updatedItem);
+      }
 
       return res;
     } catch (err: any) {
@@ -56,6 +70,16 @@ export const useJobCareerStore = defineStore("job-career", () => {
     createError.value = null;
     try {
       const res = await jobCareerApi.createJobCareer(params);
+
+      const newItem = res.data;
+
+      if (newItem.is_active === 1) {
+        JobCareerSelected.value = JobCareerSelected.value.map((item) => ({
+          ...item,
+          is_active: 0,
+        }));
+      }
+
       JobCareerSelected.value.push(res.data);
       return res;
     } catch (err: any) {

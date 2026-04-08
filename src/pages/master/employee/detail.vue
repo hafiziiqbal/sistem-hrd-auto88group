@@ -43,7 +43,7 @@
           <v-tab
             :disabled="isCreate"
             text="Kelengkapan File"
-            value="completement-file"
+            value="file-completeness"
           ></v-tab>
         </v-tabs>
 
@@ -68,6 +68,18 @@
           <v-tabs-window-item value="job-career">
             <detail-job-career />
           </v-tabs-window-item>
+
+          <v-tabs-window-item value="training-certificate">
+            <detail-training-certificate />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="account-access">
+            <detail-account-access />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="file-completeness">
+            <detail-file-completeness />
+          </v-tabs-window-item>
         </v-tabs-window>
       </div>
     </v-card>
@@ -84,6 +96,9 @@ import DetailWorkExperience from "@/components/employee/DetailWorkExperience.vue
 import { useRoute } from "vue-router";
 import CreateUser from "@/components/employee/CreateUser.vue";
 import DetailJobCareer from "@/components/employee/DetailJobCareer.vue";
+import DetailTrainingCertificate from "@/components/employee/DetailTrainingCertificate.vue";
+import DetailAccountAccess from "@/components/employee/DetailAccountAccess.vue";
+import DetailFileCompleteness from "@/components/employee/DetailFileCompleteness.vue";
 
 const tab = ref("detail-user");
 const route = useRoute();

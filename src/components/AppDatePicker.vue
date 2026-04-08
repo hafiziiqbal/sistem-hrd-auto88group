@@ -12,6 +12,7 @@
         :model-value="formattedDate"
         :rules="rules"
         :disabled="disabled"
+        :error-messages="errorMessages"
         readonly
         hide-details="auto"
         append-inner-icon="mdi-calendar"
@@ -40,6 +41,7 @@ interface Props {
   rules?: any[];
   disabled?: boolean;
   min?: string | Date;
+  errorMessages?: string | string[];
 }
 
 const props = defineProps<Props>();

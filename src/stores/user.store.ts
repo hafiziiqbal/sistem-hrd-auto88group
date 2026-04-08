@@ -8,6 +8,7 @@ import {
   type UserProspectParams,
   type UserSelectedParams,
   type UserCreateUpdateParams,
+  type UserAccountAccessParams,
 } from "@/api/modules/user.api";
 
 export const useUserStore = defineStore("user", () => {
@@ -21,10 +22,14 @@ export const useUserStore = defineStore("user", () => {
   const isLoadingDestroy = ref(false);
   const isLoadingCreate = ref(false);
   const isLoadingProspect = ref(false);
+  const isLoadingUpdateAccountAccess = ref(false);
+  const isLoadingFaceId = ref(false);
+  const isLoadingDeviceId = ref(false);
   const totalRecords = ref(0);
   const updateError = ref<string | null>(null);
   const createError = ref<string | null>(null);
   const deleteError = ref<string | null>(null);
+  const accountAccessError = ref<string | null>(null);
 
   const params = reactive<UserDatatablesParams>({
     draw: 1,
@@ -142,6 +147,26 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  async function updateAccountAccess(
+    id: number,
+    params: UserAccountAccessParams,
+  ) {
+    isLoadingUpdateAccountAccess.value = true;
+    accountAccessError.value = null;
+    try {
+      const res = await userApi.updateAccountAccess(id, params);
+      usersSelected.value = res.data;
+      console.log(usersSelected.value);
+      return res;
+    } catch (err: any) {
+      accountAccessError.value =
+        err?.response?.data?.message ?? "Gagal mengupdate user";
+      throw err;
+    } finally {
+      isLoadingUpdateAccountAccess.value = false;
+    }
+  }
+
   async function destroyUser(id: number) {
     isLoadingDestroy.value = true;
     deleteError.value = null;
@@ -176,6 +201,40 @@ export const useUserStore = defineStore("user", () => {
     fetchUsers();
   }
 
+  async function resetFaceId(id: number) {
+    isLoadingFaceId.value = true;
+    try {
+      const res = await userApi.resetFaceId(id);
+      if (res.success) {
+        if (usersSelected.value) {
+          usersSelected.value.face_id = "";
+        }
+      }
+      return res;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      isLoadingFaceId.value = false;
+    }
+  }
+
+  async function resetDeviceId(id: number) {
+    isLoadingDeviceId.value = true;
+    try {
+      const res = await userApi.resetDeviceId(id);
+      if (res.success) {
+        if (usersSelected.value) {
+          usersSelected.value.device_id = "";
+        }
+      }
+      return res;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      isLoadingDeviceId.value = false;
+    }
+  }
+
   return {
     users,
     usersData,
@@ -187,6 +246,9 @@ export const useUserStore = defineStore("user", () => {
     isLoadingDestroy,
     isLoadingCreate,
     isLoadingProspect,
+    isLoadingUpdateAccountAccess,
+    isLoadingFaceId,
+    isLoadingDeviceId,
     totalRecords,
     params,
     userDataParams,
@@ -195,6 +257,7 @@ export const useUserStore = defineStore("user", () => {
     updateError,
     createError,
     deleteError,
+    accountAccessError,
     fetchUsers,
     fetchUsersData,
     toggleShowDeleted,
@@ -202,7 +265,10 @@ export const useUserStore = defineStore("user", () => {
     createUser,
     updateUser,
     destroyUser,
+    resetFaceId,
+    resetDeviceId,
     updateUserProspect,
     fetchUsersDataWithParams,
+    updateAccountAccess,
   };
 });

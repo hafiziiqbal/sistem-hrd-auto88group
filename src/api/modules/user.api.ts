@@ -69,6 +69,7 @@ export interface UserCreateUpdateParams {
   emergency_phone_number?: string;
 
   // employment
+  location_presensi_id?: number;
   primary_approver_id?: number;
   secondary_approver_id?: number;
   status_id?: number;
@@ -83,6 +84,13 @@ export interface UserSelectedParams {
 
 export interface UserProspectParams {
   action: string;
+}
+
+export interface UserAccountAccessParams {
+  password: string;
+  location_presensi_id: number;
+  lock_face_attendance: number;
+  lock_device_attendance: number;
 }
 
 export interface UserDatatablesResponse {
@@ -298,5 +306,22 @@ export const userApi = {
     return api
       .put(`/hrd/users/status-prospect/${id}`, params)
       .then((res) => res.data);
+  },
+
+  updateAccountAccess(
+    id: number,
+    params: UserAccountAccessParams,
+  ): Promise<UserUpdateResponse> {
+    return api
+      .post(`/hrd/users/account-access/${id}?_method=POST`, params)
+      .then((res) => res.data);
+  },
+
+  resetFaceId(id: number): Promise<UserDefaultResponse> {
+    return api.get(`/hrd/users/reset-face-id/${id}`).then((res) => res.data);
+  },
+
+  resetDeviceId(id: number): Promise<UserDefaultResponse> {
+    return api.get(`/hrd/users/reset-device-id/${id}`).then((res) => res.data);
   },
 };

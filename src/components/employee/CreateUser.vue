@@ -578,6 +578,7 @@
                 no-filter
                 @update:search="onSearchPrimaryApprover"
                 :error-messages="serverErrors.primary_approver_id"
+                :rules="[rules.required]"
               >
                 <template v-slot:label>
                   Atasan 1 <span class="text-red-500">*</span>
@@ -754,6 +755,31 @@
                 </template>
               </v-autocomplete>
             </v-col>
+            <v-col cols="12" md="6">
+              <v-autocomplete
+                v-model="form.location_presensi_id"
+                :items="listAttendanceLocation"
+                :loading="attendanceLocationStore.isLoadingData"
+                prepend-inner-icon="mdi-map-marker-outline"
+                item-title="title"
+                item-value="value"
+                placeholder="Pilih lokasi absen"
+                variant="outlined"
+                density="compact"
+                color="primary"
+                class="custom-input"
+                hide-details="auto"
+                clearable
+                no-filter
+                @update:search="onSearchAttendanceLocation"
+                :rules="[rules.required]"
+                :error-messages="serverErrors.location_presensi_id"
+              >
+                <template v-slot:label>
+                  Lokasi Absen<span class="text-red-500">*</span>
+                </template>
+              </v-autocomplete>
+            </v-col>
 
             <v-col cols="12" md="6">
               <v-text-field
@@ -924,6 +950,7 @@ import { useBranchStore } from "@/stores/branch.store";
 import { useSalesOfficialStore } from "@/stores/sales-official.store";
 import { useFormatName } from "@/composables/useFormatName";
 import { useRouter } from "vue-router";
+import { useAttendanceLocationStore } from "@/stores/attendance-location.store";
 
 const { formatName } = useFormatName();
 const serverErrors = reactive<Record<string, string>>({});
@@ -937,6 +964,7 @@ const districtStore = useDistrictStore();
 const villageStore = useVillageStore();
 const positionStore = usePositionStore();
 const branchStore = useBranchStore();
+const attendanceLocationStore = useAttendanceLocationStore();
 const salesOfficialStore = useSalesOfficialStore();
 const userStore = useUserStore();
 const primaryApproverResults = ref<typeof userStore.usersData>([]);
@@ -958,6 +986,7 @@ const searchEducation = ref("");
 const searchMaritalStatus = ref("");
 const searchPosition = ref("");
 const searchBranch = ref("");
+const searchAttendanceLocation = ref("");
 const searchBloodType = ref("");
 const searchReligion = ref("");
 const searchProvince = ref("");
@@ -1020,6 +1049,13 @@ const listBranch = computed(() => {
         : true,
     )
     .map((b) => ({ title: b.name, alias: b.alias, value: b.id }));
+});
+
+const listAttendanceLocation = computed(() => {
+  const keyword = searchAttendanceLocation.value.toLowerCase();
+  return attendanceLocationStore.attendanceLocationData
+    .filter((b) => (keyword ? b.name.toLowerCase().includes(keyword) : true))
+    .map((b) => ({ title: b.name, value: b.id }));
 });
 
 const listBloodType = computed(() => {
@@ -1116,6 +1152,9 @@ const onSearchPosition = (val: any) => {
 const onSearchBranch = (val: any) => {
   searchBranch.value = val ?? "";
 };
+const onSearchAttendanceLocation = (val: any) => {
+  searchAttendanceLocation.value = val ?? "";
+};
 const onSearchBloodType = (val: any) => {
   searchBloodType.value = val ?? "";
 };
@@ -1177,6 +1216,7 @@ const form = reactive({
   master_position_id: null as number | null,
   position: "",
   branch_id: null as number | null,
+  location_presensi_id: null as number | null,
   remaining_leave: null as number | null,
   status_id: null as number | null,
   effective_start_date: "",
@@ -1197,7 +1237,7 @@ const rules = {
   required: (v: any) =>
     (v !== null && v !== undefined && v !== "") || "Wajib diisi",
   email: (v: string) => /.+@.+\..+/.test(v) || "Format email tidak valid",
-  password: (v: string) => v.length >= 8 || "Password minimal 8 karakter",
+  password: (v: string) => v.length >= 6 || "Password minimal 6 karakter",
   passwordConfirmation: (v: string) =>
     v === form.password || "Konfirmasi password tidak cocok",
   imageSize: (v: File | File[]) => {
@@ -1347,6 +1387,7 @@ async function handleSubmit() {
       password: form.password,
       password_confirmation: form.password_confirmation,
       branch_id: form.branch_id!,
+      location_presensi_id: form.location_presensi_id!,
       master_position_id: form.master_position_id!,
       position: form.position,
       level: form.level ?? "",
@@ -1446,6 +1487,7 @@ onMounted(async () => {
   bloodTypeStore.fetchBloodTypeData();
   religionStore.fetchReligionData();
   positionStore.fetchPositionData();
+  attendanceLocationStore.fetchAttendanceLocationData();
 
   const initialUsers = await userStore.fetchUsersDataWithParams({ search: "" });
   primaryApproverResults.value = initialUsers;

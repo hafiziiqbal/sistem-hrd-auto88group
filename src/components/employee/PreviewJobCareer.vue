@@ -122,10 +122,64 @@
               <span class="text-gray-500 text-sm dark:text-gray-300"
                 >Cabang</span
               >
-              <span class="font-bold text-sm">{{
-                item.branch_name ?? "-"
-              }}</span>
+              <div class="font-bold text-sm">
+                {{
+                  item.branch_alias
+                    ? item.branch_alias + " - " + item.branch_name
+                    : "-"
+                }}
+              </div>
             </div>
+            <template
+              v-if="item.primary_approver_id || item.secondary_approver_id"
+            >
+              <!-- Jika hanya atasan 1 saja (atasan 2 tidak ada) -->
+              <template v-if="!item.secondary_approver_id">
+                <v-col cols="12" md="6">
+                  <div class="text-gray-500 text-sm dark:text-gray-300">
+                    Atasan
+                  </div>
+                  <div class="font-bold text-sm">
+                    {{
+                      formatName2(
+                        item.primary_approver_name,
+                        item.primary_approver_full_name,
+                      ) ?? "-"
+                    }}
+                  </div>
+                </v-col>
+              </template>
+
+              <!-- Jika keduanya ada -->
+              <template v-else>
+                <v-col cols="12" md="6">
+                  <div class="text-gray-500 text-sm dark:text-gray-300">
+                    Atasan 1
+                  </div>
+                  <div class="font-bold text-sm">
+                    {{
+                      formatName2(
+                        item.primary_approver_name,
+                        item.primary_approver_full_name,
+                      ) ?? "-"
+                    }}
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="text-gray-500 text-sm dark:text-gray-300">
+                    Atasan 2
+                  </div>
+                  <div class="font-bold text-sm">
+                    {{
+                      formatName2(
+                        item.secondary_approver_name,
+                        item.secondary_approver_full_name,
+                      ) ?? "-"
+                    }}
+                  </div>
+                </v-col>
+              </template>
+            </template>
             <div class="flex flex-col">
               <span class="text-gray-500 text-sm dark:text-gray-300"
                 >Tanggal Mulai</span
@@ -165,9 +219,9 @@
               >
               <div
                 class="font-bold text-sm inline-block px-2 py-0.5 rounded w-fit"
-                :class="statusYesOrNoColor(item.status_id ?? 0)"
+                :class="statusYesOrNoColor(item.is_active ?? 0)"
               >
-                {{ statusYesOrNoLabel(item.status_id ?? 0) }}
+                {{ statusYesOrNoLabel(item.is_active ?? 0) }}
               </div>
             </div>
 
@@ -288,6 +342,7 @@
               clearable
               no-filter
               @update:search="onSearchPosition"
+              @update:model-value="onPositionChange"
               :rules="[rules.required]"
               :error-messages="serverErrors.master_position_id"
             >
@@ -325,6 +380,71 @@
                   :subtitle="item.title"
                 >
                 </v-list-item>
+              </template>
+            </v-autocomplete>
+
+            <v-autocomplete
+              v-model="form.primary_approver_id"
+              :items="listPrimaryApprover"
+              :loading="userStore.isLoadingData"
+              item-title="name"
+              item-value="value"
+              prepend-inner-icon="mdi-account"
+              placeholder="Cari nama..."
+              variant="outlined"
+              density="compact"
+              color="primary"
+              class="custom-input"
+              hide-details="auto"
+              clearable
+              no-filter
+              :rules="[rules.required]"
+              @update:search="onSearchPrimaryApprover"
+              :error-messages="serverErrors.primary_approver_id"
+            >
+              <template v-slot:label>
+                Atasan 1<span class="text-red-500">*</span>
+              </template>
+              <template v-slot:item="{ props, item }">
+                <v-list-item
+                  v-bind="props"
+                  :title="formatName2(item.name, item.full_name)"
+                  :subtitle="item.email"
+                />
+              </template>
+              <template v-slot:selection="{ item }">
+                {{ formatName2(item.name, item.full_name) }}
+              </template>
+            </v-autocomplete>
+
+            <v-autocomplete
+              label="Atasan 2"
+              v-model="form.secondary_approver_id"
+              :items="listSecondaryApprover"
+              :loading="userStore.isLoadingData"
+              item-title="name"
+              item-value="value"
+              prepend-inner-icon="mdi-account"
+              placeholder="Cari nama..."
+              variant="outlined"
+              density="compact"
+              color="primary"
+              class="custom-input"
+              hide-details="auto"
+              clearable
+              no-filter
+              @update:search="onSearchSecondaryApprover"
+              :error-messages="serverErrors.secondary_approver_id"
+            >
+              <template v-slot:item="{ props, item }">
+                <v-list-item
+                  v-bind="props"
+                  :title="formatName2(item.name, item.full_name)"
+                  :subtitle="item.email"
+                />
+              </template>
+              <template v-slot:selection="{ item }">
+                {{ formatName2(item.name, item.full_name) }}
               </template>
             </v-autocomplete>
 
@@ -433,19 +553,36 @@
               :error-messages="serverErrors.is_active"
             >
               <template v-slot:label>
-                Status<span class="text-red-500">*</span>
+                Data Ini Berlaku?<span class="text-red-500">*</span>
               </template>
             </v-select>
           </div>
         </v-form>
       </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions class="px-6 py-4 gap-2 justify-end">
+        <v-btn variant="outlined" @click="closeDialog">Batal</v-btn>
+        <v-btn
+          color="bg-indigo-300 dark:bg-indigo-500"
+          variant="flat"
+          :prepend-icon="isEditMode ? 'mdi-content-save' : 'mdi-plus'"
+          :loading="
+            isEditMode
+              ? jobCareerStore.isLoadingUpdate
+              : jobCareerStore.isLoadingCreate
+          "
+          @click="submitForm"
+        >
+          {{ isEditMode ? "Simpan Perubahan" : "Tambah Data" }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { useJobCareerStore } from "@/stores/job-career.store";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, reactive, ref } from "vue";
 import ConfirmDialog from "../ConfirmDialog.vue";
 import { useConfirmDialog } from "@/composables/useConfirmDialog";
 import { useRoute } from "vue-router";
@@ -455,9 +592,14 @@ import { useYesOrNoStatus } from "@/composables/UseYesOrNoStatus";
 import { usePositionStore } from "@/stores/position.store";
 import { useBranchStore } from "@/stores/branch.store";
 import AppDatePicker from "../AppDatePicker.vue";
+import { useUserStore } from "@/stores/user.store";
+import { useDebounceFn } from "@/composables/UseDebounce";
+import { useFormatName } from "@/composables/useFormatName";
 // ─────────────────────────────────────────────────────────────
 // 1. STORES, COMPOSSABLE & ROUTE
 // ─────────────────────────────────────────────────────────────
+const { formatName2 } = useFormatName();
+const userStore = useUserStore();
 const jobCareerStore = useJobCareerStore();
 const positionStore = usePositionStore();
 const branchStore = useBranchStore();
@@ -467,6 +609,8 @@ const { toFullDate } = useDateFormatter();
 const { statusLabel, statusColor } = useEmployeeStatus();
 const { statusYesOrNoLabel, statusYesOrNoColor } = useYesOrNoStatus();
 
+const primaryApproverResults = ref<typeof userStore.usersData>([]);
+const secondaryApproverResults = ref<typeof userStore.usersData>([]);
 const userId = route.params.id;
 const apiUrl = import.meta.env.VITE_API_URL ?? "";
 
@@ -544,13 +688,22 @@ const defaultForm = () => ({
   user_id: null as number | null,
   reference_number: "",
   position: "",
+  level: "",
   master_position_id: null as number | null,
   branch_id: null as number | null,
+  primary_approver_id: null as number | null,
+  primary_approver_name: "",
+  primary_approver_full_name: "",
+  primary_approver_email: "",
+  secondary_approver_id: null as number | null,
+  secondary_approver_name: "",
+  secondary_approver_email: "",
+  secondary_approver_full_name: "",
   start_date: "",
   end_date: "",
-  status_id: "",
+  status_id: null,
   note: "",
-  is_active: "",
+  is_active: null,
   attachment: [] as File[],
   attachment_existing: null as any,
   remove_attachment: false,
@@ -558,9 +711,59 @@ const defaultForm = () => ({
 
 const form = reactive(defaultForm());
 const serverErrors = reactive<Record<string, string>>({});
+const isSelectingPrimaryApprover = ref(false);
+const selectedPrimaryApproverText = ref<string>("");
+const isSelectingSecondaryApprover = ref(false);
+const selectedSecondaryApproverText = ref<string>("");
+
+const listPrimaryApprover = computed(() => {
+  const users = primaryApproverResults.value.map((u) => ({
+    value: u.id,
+    name: u.name,
+    full_name: u.full_name,
+    email: u.email,
+  }));
+
+  if (form.primary_approver_id && form.primary_approver_name) {
+    const exists = users.some((u) => u.value === form.primary_approver_id);
+    if (!exists) {
+      users.unshift({
+        value: form.primary_approver_id,
+        name: form.primary_approver_name ?? "",
+        full_name: form.primary_approver_full_name ?? "",
+        email: form.primary_approver_email ?? "",
+      });
+    }
+  }
+  return users;
+});
+
+// Update listSecondaryApprover computed
+const listSecondaryApprover = computed(() => {
+  const users = secondaryApproverResults.value.map((u) => ({
+    value: u.id,
+    name: u.name,
+    full_name: u.full_name,
+    email: u.email,
+  }));
+
+  if (form.secondary_approver_id && form.secondary_approver_name) {
+    const exists = users.some((u) => u.value === form.secondary_approver_id);
+    if (!exists) {
+      users.unshift({
+        value: form.secondary_approver_id,
+        name: form.secondary_approver_name ?? "",
+        full_name: form.secondary_approver_full_name ?? "",
+        email: form.secondary_approver_email ?? "",
+      });
+    }
+  }
+  return users;
+});
 
 const rules = {
-  required: (v: any) => !!v || "Field ini wajib diisi",
+  required: (v: any) =>
+    (v !== null && v !== undefined && v !== "") || "Wajib diisi",
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -637,12 +840,21 @@ function openEditDialog(item: any) {
     id: item.id,
     user_id: item.user_id,
     reference_number: item.reference_number ?? "",
+    level: item.level ?? "",
     position: item.position ?? "",
     master_position_id: item.master_position_id ?? null,
     branch_id: item.branch_id ?? null,
+    primary_approver_id: item.primary_approver_id ?? null,
+    primary_approver_name: item.primary_approver_name ?? null,
+    primary_approver_full_name: item.primary_approver_full_name ?? null,
+    primary_approver_email: item.primary_approver_email ?? null,
+    secondary_approver_id: item.secondary_approver_id ?? null,
+    secondary_approver_name: item.secondary_approver_name ?? null,
+    secondary_approver_full_name: item.secondary_approver_full_name ?? null,
+    secondary_approver_email: item.secondary_approver_email ?? null,
     start_date: item.start_date ?? "",
     end_date: item.end_date ?? "",
-    status_id: item.status_id ?? "",
+    status_id: item.status_id ?? null,
     note: item.note ?? "",
     is_active: item.is_active ?? "",
     attachment: [],
@@ -678,6 +890,151 @@ async function deleteEducation(id: number) {
   }
 }
 
+const PRIORITY_FIELDS = [
+  "reference_number",
+  "position",
+  "master_position_id",
+  "branch_id",
+  "start_date",
+  "end_date",
+  "status_id",
+  "note",
+  "attachment",
+  "is_active",
+];
+
+const onSearchPrimaryApprover = useDebounceFn(async (val: string) => {
+  if (isSelectingPrimaryApprover.value) return;
+  if (val === selectedPrimaryApproverText.value) return;
+  primaryApproverResults.value = await userStore.fetchUsersDataWithParams({
+    search: val ?? "",
+  });
+}, 400);
+
+const onSearchSecondaryApprover = useDebounceFn(async (val: string) => {
+  if (isSelectingSecondaryApprover.value) return;
+  if (val === selectedSecondaryApproverText.value) return;
+  secondaryApproverResults.value = await userStore.fetchUsersDataWithParams({
+    search: val ?? "",
+  });
+}, 400);
+
+function scrollToFirstError(serverErr?: Record<string, string>) {
+  if (serverErr) {
+    for (const field of PRIORITY_FIELDS) {
+      if (serverErr[field]) {
+        document
+          .getElementById(field)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+  }
+
+  for (const field of PRIORITY_FIELDS) {
+    const el = document.getElementById(field);
+    if (el?.closest(".v-input")?.classList.contains("v-input--error")) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+  }
+}
+
+function handleServerErrors(err: any) {
+  if (err?.status === 422) {
+    const errors = err.errors as Record<string, string[]>;
+    if (errors) {
+      Object.entries(errors).forEach(([field, messages]) => {
+        serverErrors[field] = messages[0];
+      });
+      nextTick(() => scrollToFirstError(serverErrors));
+    }
+  } else {
+    showError(err?.message ?? "Terjadi kesalahan, coba lagi.");
+  }
+}
+
+function buildFormData(): FormData {
+  const fd = new FormData();
+  fd.append("user_id", String(form.user_id));
+  fd.append("reference_number", form.reference_number);
+  fd.append("level", form.level);
+  fd.append("position", form.position);
+  fd.append("master_position_id", String(form.master_position_id));
+  fd.append("branch_id", String(form.branch_id));
+  fd.append("primary_approver_id", String(form.primary_approver_id));
+  fd.append("secondary_approver_id", String(form.secondary_approver_id));
+  fd.append("start_date", form.start_date);
+  fd.append("end_date", form.end_date);
+  fd.append("status_id", String(form.status_id));
+  fd.append("note", form.note);
+  fd.append("is_active", String(form.is_active));
+  const attFile = Array.isArray(form.attachment)
+    ? form.attachment[0]
+    : form.attachment;
+
+  if (attFile instanceof File) {
+    fd.append("attachment", attFile);
+  }
+
+  if (form.attachment_existing !== null) {
+    fd.append("attachment_preview", form.attachment_existing);
+  }
+  // flag hapus
+  if (form.remove_attachment) {
+    fd.append("remove_attachment", "1");
+  }
+
+  return fd;
+}
+
+function onPositionChange(value: number | null) {
+  const selectedItem = listPosition.value.find((item) => item.value === value);
+  const title = selectedItem?.title;
+  const level = selectedItem?.level_name;
+  const oldValue = form.position;
+  const oldValueLevel = form.level;
+  form.position = title ?? oldValue;
+  form.level = level ?? oldValueLevel;
+}
+
+async function submitForm() {
+  const { valid } = await formRef.value.validate();
+  if (!valid) return;
+
+  Object.keys(serverErrors).forEach((key) => delete serverErrors[key]);
+
+  if (isEditMode.value) {
+    try {
+      let result = await jobCareerStore.updateJobCareer(
+        Number(form.id),
+        buildFormData(),
+      );
+      if (result.success) {
+        showSuccess(result.message);
+      } else {
+        showError(result.message ?? "Gagal mengupdate data");
+      }
+
+      closeDialog();
+    } catch (err: any) {
+      handleServerErrors(err);
+    }
+  } else {
+    try {
+      let result = await jobCareerStore.createJobCareer(buildFormData());
+      if (result.success) {
+        showSuccess(result.message);
+      } else {
+        showError(result.message ?? "Gagal mengupdate data");
+      }
+      closeDialog();
+    } catch (err: any) {
+      handleServerErrors(err);
+    }
+  }
+}
+
 // ─────────────────────────────────────────────────────────────
 // 12. LIFECYCLE
 // ─────────────────────────────────────────────────────────────
@@ -688,5 +1045,9 @@ onMounted(async () => {
   }
   branchStore.fetchBranchData();
   positionStore.fetchPositionData();
+
+  const initialUsers = await userStore.fetchUsersDataWithParams({ search: "" });
+  primaryApproverResults.value = initialUsers;
+  secondaryApproverResults.value = initialUsers;
 });
 </script>
