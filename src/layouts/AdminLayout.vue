@@ -137,13 +137,15 @@
             <v-btn
               variant="text"
               size="small"
-              to="/absensi"
+              to="/master/leave-type"
+              :active="$route.path.startsWith('/master/leave-type')"
               prepend-icon="mdi-card-account-details"
               class="btn-nav-custom"
               >Jenis Izin</v-btn
             >
             <v-btn
-              to="/absensi"
+              to="/master/shift"
+              :active="$route.path.startsWith('/master/shift')"
               variant="text"
               size="small"
               prepend-icon="mdi-rotate-right"
@@ -169,7 +171,7 @@
             >
           </div>
 
-          <div v-if="activeGroup === 'pengaturan'" class="d-flex flex-wrap">
+          <div v-if="activeGroup === 'setting'" class="d-flex flex-wrap">
             <v-btn
               to="/absensi"
               variant="text"
@@ -187,7 +189,8 @@
               >Umum</v-btn
             >
             <v-btn
-              to="/absensi"
+              to="/setting/working-hour"
+              :active="$route.path.startsWith('/setting/working-hour')"
               variant="text"
               size="small"
               prepend-icon="mdi-timer-outline"
@@ -339,12 +342,16 @@
               active-class="text-indigo-600 dark:text-indigo-200"
             ></v-list-item>
             <v-list-item
+              to="/master/leave-type"
+              :active="$route.path.startsWith('/master/leave-type')"
               title="Jenis Izin"
               value="jenis-izin"
               active-class="text-indigo-600 dark:text-indigo-200"
             ></v-list-item>
             <v-list-item
               title="Shift"
+              to="/master/shift"
+              :active="$route.path.startsWith('/master/shift')"
               value="shift"
               active-class="text-indigo-600 dark:text-indigo-200"
             ></v-list-item>
@@ -362,7 +369,7 @@
             ></v-list-item>
           </v-list-group>
 
-          <v-list-group value="pengaturan">
+          <v-list-group value="setting">
             <template v-slot:activator="{ props }">
               <v-list-item
                 v-bind="props"
@@ -392,6 +399,8 @@
               value="umum"
             ></v-list-item>
             <v-list-item
+              to="/setting/working-hour"
+              :active="$route.path.startsWith('/setting/working-hour')"
               title="Jam Kerja"
               active-class="text-indigo-600 dark:text-indigo-200"
               value="jam-kerja"
@@ -500,7 +509,7 @@ const showScrollTop = ref(false);
 const menuItems = [
   { value: "dashboard", label: "Dashboard", icon: "mdi-view-dashboard" },
   { value: "master", label: "Master Data", icon: "mdi-database" },
-  { value: "pengaturan", label: "Pengaturan", icon: "mdi-cog" },
+  { value: "setting", label: "Pengaturan", icon: "mdi-cog" },
   { value: "kelola", label: "Kelola Absensi", icon: "mdi-calendar-check" },
 ];
 
@@ -522,8 +531,8 @@ const syncTabWithRoute = () => {
     activeGroup.value = "dashboard";
   } else if (route.path.startsWith("/master")) {
     activeGroup.value = "master";
-  } else if (route.path.startsWith("/pengaturan")) {
-    activeGroup.value = "pengaturan";
+  } else if (route.path.startsWith("/setting")) {
+    activeGroup.value = "setting";
   } else if (route.path.startsWith("/kelola")) {
     activeGroup.value = "kelola";
   }

@@ -46,6 +46,29 @@ const router = createRouter({
           component: () => import("@/pages/master/employee/detail.vue"),
           meta: { requiresAuth: true },
         },
+        {
+          path: "/master/leave-type",
+          name: "Jenis Izin",
+          component: () => import("@/pages/master/leave-type/index.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/master/shift",
+          name: "Shift",
+          component: () => import("@/pages/master/shift/index.vue"),
+          meta: { requiresAuth: true },
+        },
+
+        {
+          path: "/master",
+          redirect: "/setting/working-hour",
+        },
+        {
+          path: "/setting/working-hour",
+          name: "Shift",
+          component: () => import("@/pages/setting/working-hour/index.vue"),
+          meta: { requiresAuth: true },
+        },
       ],
     },
     {
