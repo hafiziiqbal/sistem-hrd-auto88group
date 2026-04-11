@@ -162,7 +162,8 @@
               >Karyawan</v-btn
             >
             <v-btn
-              to="/absensi"
+              to="/master/remaining-leave"
+              :active="$route.path.startsWith('/master/remaining-leave')"
               variant="text"
               size="small"
               prepend-icon="mdi-calendar-heart"
@@ -365,6 +366,8 @@
               active-class="text-indigo-600 dark:text-indigo-200"
             ></v-list-item>
             <v-list-item
+              to="/master/remaining-leave"
+              :active="$route.path.startsWith('/master/remaining-leave')"
               title="Saldo Cuti"
               value="saldo-cuti"
               active-class="text-indigo-600 dark:text-indigo-200"

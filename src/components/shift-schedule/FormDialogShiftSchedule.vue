@@ -18,133 +18,140 @@
           @click="closeDialog"
         ></v-btn>
       </v-card-title>
+
       <v-divider></v-divider>
+
       <v-card-text class="p-4">
         <v-form ref="formRef">
           <v-row class="gy-4">
-            <v-col cols="12" md="6">
-              <v-text-field
-                id="code"
-                v-model="form.code"
-                type="text"
+            <v-col cols="12" v-if="!isEditMode">
+              <v-autocomplete
+                v-model="form.branch_id"
+                :items="listBranch"
+                :loading="branchStore.isLoadingData"
+                prepend-inner-icon="mdi-map-marker-outline"
+                item-title="alias"
+                item-value="value"
+                placeholder="Pilih cabang"
                 variant="outlined"
-                hide-details="auto"
                 density="compact"
+                color="primary"
+                class="custom-input"
+                hide-details="auto"
+                clearable
+                no-filter
                 :rules="[rules.required]"
-                :error-messages="serverErrors.code"
+                @update:search="onSearchBranch"
               >
                 <template v-slot:label>
-                  Code<span class="text-red-500">*</span>
+                  Cabang<span class="text-red-500">*</span>
                 </template>
-              </v-text-field>
+
+                <template v-slot:item="{ props, item }">
+                  <v-list-item
+                    v-bind="props"
+                    :title="item.alias"
+                    :subtitle="item.title"
+                  />
+                </template>
+              </v-autocomplete>
             </v-col>
 
-            <v-col cols="12" md="6">
-              <v-text-field
-                id="name"
-                v-model="form.name"
-                type="text"
+            <v-col cols="12" v-if="!isEditMode">
+              <v-autocomplete
+                ref="autocompleteRef"
+                v-model="form.user_ids"
+                :items="listUser"
+                multiple
+                chips
+                closable-chips
                 variant="outlined"
-                hide-details="auto"
                 density="compact"
+                item-title="name"
+                item-value="value"
+                placeholder="Cari nama..."
+                hide-details="auto"
+                clearable
+                no-filter
                 :rules="[rules.required]"
-                :error-messages="serverErrors.name"
+                @click:clear="onClearUser"
+                @update:search="onSearchUser"
+                @update:modelValue="onUserSelected"
               >
                 <template v-slot:label>
-                  Nama<span class="text-red-500">*</span>
+                  Karyawan<span class="text-red-500">*</span>
                 </template>
-              </v-text-field>
-            </v-col>
 
-            <v-col cols="12" md="6">
-              <v-menu
-                v-model="openTimeIn"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-              >
-                <template v-slot:activator="{ props }">
-                  <v-text-field
-                    v-model="form.time_in"
-                    readonly
-                    density="compact"
-                    variant="outlined"
+                <template v-slot:item="{ props, item }">
+                  <v-list-item
                     v-bind="props"
-                    hide-details="auto"
-                    :rules="[rules.required]"
-                    :error-messages="serverErrors.time_in"
-                  >
-                    <template v-slot:label>
-                      Jam Masuk<span class="text-red-500">*</span>
-                    </template>
-                  </v-text-field>
+                    :title="formatName(item)"
+                    :subtitle="item.email"
+                  />
                 </template>
 
-                <v-time-picker
-                  v-model="form.time_in"
-                  format="24hr"
-                  @update:minute="openTimeIn = false"
-                />
-              </v-menu>
+                <template v-slot:selection="{ item, index }">
+                  <v-chip size="small" class="ma-1" closable>
+                    {{
+                      selectedUsers[index]?.name || item.full_name || item.value
+                    }}
+                  </v-chip>
+                </template>
+              </v-autocomplete>
             </v-col>
 
-            <v-col cols="12" md="6">
-              <v-menu
-                v-model="openTimeOut"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
+            <v-col cols="12" v-if="!isEditMode">
+              <date-range-picker
+                v-model="form.period"
+                :rules="[rules.required]"
               >
-                <template v-slot:activator="{ props }">
-                  <v-text-field
-                    v-model="form.time_out"
-                    readonly
-                    density="compact"
-                    variant="outlined"
-                    v-bind="props"
-                    hide-details="auto"
-                    :rules="[rules.required]"
-                    :error-messages="serverErrors.time_out"
-                  >
-                    <template v-slot:label>
-                      Jam Pulang<span class="text-red-500">*</span>
-                    </template>
-                  </v-text-field>
+                <template v-slot:label>
+                  Periode<span class="text-red-500">*</span>
                 </template>
-
-                <v-time-picker
-                  v-model="form.time_out"
-                  format="24hr"
-                  @update:minute="openTimeOut = false"
-                />
-              </v-menu>
+              </date-range-picker>
             </v-col>
 
-            <v-col cols="12" md="6">
-              <v-text-field
-                id="note"
-                label="Catatan"
-                v-model="form.note"
-                type="text"
+            <v-col cols="12">
+              <v-autocomplete
+                v-model="form.hrd_master_shift_id"
+                :items="listShift"
+                :loading="shiftStore.isLoadingData"
+                prepend-inner-icon="mdi-map-marker-outline"
+                item-title="title"
+                item-value="value"
+                placeholder="Pilih shift"
                 variant="outlined"
-                hide-details="auto"
                 density="compact"
-                :error-messages="serverErrors.note"
+                color="primary"
+                class="custom-input"
+                hide-details="auto"
+                clearable
+                no-filter
+                :rules="[rules.required]"
+                @update:search="onSearchShift"
               >
-              </v-text-field>
+                <template v-slot:label>
+                  Shift<span class="text-red-500">*</span>
+                </template>
+              </v-autocomplete>
             </v-col>
           </v-row>
         </v-form>
       </v-card-text>
+
       <v-divider></v-divider>
+
       <v-card-actions class="px-6 py-4 gap-2 justify-end">
         <v-btn variant="outlined" @click="closeDialog">Batal</v-btn>
+
         <v-btn
           color="bg-indigo-300 dark:bg-indigo-500"
           variant="flat"
           :prepend-icon="isEditMode ? 'mdi-content-save' : 'mdi-plus'"
           :loading="
-            isEditMode ? shiftStore.isLoadingUpdate : shiftStore.isLoadingCreate
+            isEditMode
+              ? shiftScheduleStore.isLoadingUpdate
+              : shiftScheduleStore.isLoadingCreate
           "
           @click="submitForm"
         >
@@ -154,44 +161,219 @@
     </v-card>
   </v-dialog>
 </template>
+
 <script setup lang="ts">
+/* =========================
+ * IMPORTS
+ * ========================= */
+import { ref, reactive, computed, watch, onMounted, nextTick } from "vue";
+import { useDebounceFn } from "@/composables/UseDebounce";
+import { useFormatName } from "@/composables/useFormatName";
+
+import { useBranchStore } from "@/stores/branch.store";
+import { useUserStore } from "@/stores/user.store";
+import { useShiftScheduleStore } from "@/stores/shift-schedule.store";
+
+import DateRangePicker from "../DateRangePicker.vue";
 import { useShiftStore } from "@/stores/shift.store";
-import { reactive, ref } from "vue";
 
-const defaultForm = () => ({
-  id: 0 as number | null,
-  code: "",
-  name: "",
-  time_in: "",
-  time_out: "",
-  note: "",
-});
+/* =========================
+ * COMPOSABLE
+ * ========================= */
+const { formatName } = useFormatName();
 
-const openTimeIn = ref(false);
-const openTimeOut = ref(false);
+/* =========================
+ * REFS
+ * ========================= */
+const dialog = ref(false);
+const formRef = ref();
+const autocompleteRef = ref();
+const isEditMode = ref(false);
+const isSelectingUser = ref(false);
+const selectedUserText = ref<string>("");
+const selectedUsers = ref<any[]>([]);
+const searchBranch = ref("");
+const searchShift = ref("");
 
+/* =========================
+ * STORES
+ * ========================= */
+const branchStore = useBranchStore();
+const userStore = useUserStore();
+const shiftScheduleStore = useShiftScheduleStore();
+const shiftStore = useShiftStore();
+
+/* =========================
+ * PROPS
+ * ========================= */
 const props = defineProps<{
   showError: (message: string) => void;
   showSuccess: (message: string) => void;
 }>();
 
-const shiftStore = useShiftStore();
+/* =========================
+ * FORM STATE
+ * ========================= */
+const defaultForm = () => ({
+  id: 0 as number | null,
+  branch_id: null as number | null,
+  user_ids: [] as number[],
+  user_names: [] as string[],
+  user_emails: [] as string[],
+  user_email: "",
+  hrd_master_shift_id: null as number | null,
+  period: [] as string[],
+});
+
 const form = reactive(defaultForm());
 const serverErrors = reactive<Record<string, string>>({});
 
-const dialog = ref(false);
-const isEditMode = ref(false);
-const formRef = ref();
+/* =========================
+ * COMPUTED
+ * ========================= */
+const listBranch = computed(() => {
+  const keyword = searchBranch.value.toLowerCase();
 
+  return branchStore.branchData
+    .filter((b) => {
+      if (!keyword) return true;
+      return (
+        b.name.toLowerCase().includes(keyword) ||
+        b.alias.toLowerCase().includes(keyword)
+      );
+    })
+    .map((b) => ({
+      title: b.name,
+      alias: b.alias,
+      value: b.id,
+    }));
+});
+
+const listShift = computed(() => {
+  const keyword = searchShift.value.toLowerCase();
+
+  return shiftStore.shiftData
+    .filter((b) => {
+      if (!keyword) return true;
+      return b.name.toLowerCase().includes(keyword);
+    })
+    .map((b) => ({
+      title: b.name,
+      value: b.id,
+    }));
+});
+
+const listUser = computed(() => {
+  const users = userStore.usersData.map((u) => ({
+    value: u.id,
+    name: u.name,
+    full_name: u.full_name,
+    email: u.email,
+  }));
+
+  if (form.user_ids?.length && form.user_names?.length) {
+    form.user_ids.forEach((id, index) => {
+      const exists = users.some((u) => u.value === id);
+
+      if (!exists) {
+        users.unshift({
+          value: id,
+          name: form.user_names?.[index] ?? "",
+          full_name: form.user_names?.[index] ?? "",
+          email: form.user_emails?.[index] ?? "",
+        });
+      }
+    });
+  }
+
+  return users;
+});
+
+/* =========================
+ * METHODS
+ * ========================= */
+const onSearchBranch = (val: any) => {
+  searchBranch.value = val ?? "";
+};
+
+const onSearchShift = (val: any) => {
+  searchShift.value = val ?? "";
+};
+
+const onClearUser = async () => {
+  form.user_ids = [];
+  selectedUserText.value = "";
+  selectedUsers.value = [];
+  userStore.userDataParams.search = "";
+  await userStore.fetchUsersData();
+};
+
+const onUserSelected = (val: number[]) => {
+  isSelectingUser.value = true;
+
+  // ambil dari listUser + cache lama
+  const mergedSource = [...listUser.value, ...selectedUsers.value];
+
+  selectedUsers.value = val.map((id) => {
+    return (
+      mergedSource.find((u) => u.value === id) || {
+        value: id,
+        name: form.user_names?.[0] ?? "",
+        email: "",
+      }
+    );
+  });
+
+  form.user_names = selectedUsers.value.map((u) => u.name);
+  form.user_emails = selectedUsers.value.map((u) => u.email);
+
+  nextTick(() => {
+    autocompleteRef.value?.blur();
+    isSelectingUser.value = false;
+  });
+};
+
+const onSearchUser = useDebounceFn(async (val: string) => {
+  if (isSelectingUser.value) return;
+  if (val === null || val === undefined) return;
+  if (val === userStore.userDataParams.search) return;
+
+  userStore.userDataParams.search = val;
+  await userStore.fetchUsersData();
+}, 400);
+
+/* =========================
+ * WATCHERS
+ * ========================= */
+watch(
+  () => form.branch_id,
+  (newVal) => {
+    userStore.userDataParams.branch_id = newVal ?? undefined;
+
+    form.user_ids = [];
+    selectedUserText.value = "";
+    selectedUsers.value = [];
+    userStore.userDataParams.search = "";
+
+    userStore.fetchUsersData();
+  },
+);
+
+/* =========================
+ * RULES
+ * ========================= */
 const rules = {
   required: (v: any) =>
     (v !== null && v !== undefined && v !== "") || "Wajib diisi",
 };
 
+/* =========================
+ * FORM ACTIONS
+ * ========================= */
 function closeDialog() {
   dialog.value = false;
   formRef.value?.reset();
-  Object.keys(serverErrors).forEach((key) => delete serverErrors[key]);
+  Object.keys(serverErrors).forEach((k) => delete serverErrors[k]);
 }
 
 function openAddDialog() {
@@ -201,46 +383,50 @@ function openAddDialog() {
 }
 
 function openEditDialog(item: any) {
-  console.log(item);
   isEditMode.value = true;
+
   Object.assign(form, {
     id: item.id,
-    code: item.code,
-    name: item.name,
-    time_in: item.time_in ? item.time_in.slice(0, 5) : null,
-    time_out: item.time_out ? item.time_out.slice(0, 5) : null,
-    note: item.note,
+    hrd_master_shift_id: item.hrd_master_shift_id,
   });
+
   dialog.value = true;
 }
+
 async function submitForm() {
   const { valid } = await formRef.value.validate();
   if (!valid) return;
 
-  Object.keys(serverErrors).forEach((key) => delete serverErrors[key]);
+  Object.keys(serverErrors).forEach((k) => delete serverErrors[k]);
 
-  if (isEditMode.value) {
-    try {
-      await shiftStore.updateShift(Number(form.id), form);
+  try {
+    if (isEditMode.value) {
+      await shiftScheduleStore.update(form.id!, {
+        hrd_master_shift_id: form.hrd_master_shift_id!,
+      });
       props.showSuccess("Data berhasil diperbarui.");
+      shiftScheduleStore.fetchShiftSchedule();
       closeDialog();
-    } catch (err: any) {
-      handleServerErrors(err);
-    }
-  } else {
-    try {
-      await shiftStore.createShift(form);
+    } else {
+      await shiftScheduleStore.store({
+        branch_id: form.branch_id!,
+        user_ids: form.user_ids,
+        hrd_master_shift_id: form.hrd_master_shift_id!,
+        period: form.period,
+      });
       props.showSuccess("Data berhasil ditambahkan.");
+      shiftScheduleStore.fetchShiftSchedule();
       closeDialog();
-    } catch (err: any) {
-      handleServerErrors(err);
     }
+  } catch (err: any) {
+    handleServerErrors(err);
   }
 }
 
 function handleServerErrors(err: any) {
   if (err?.status === 422) {
     const errors = err.errors as Record<string, string[]>;
+
     if (errors) {
       Object.entries(errors).forEach(([field, messages]) => {
         serverErrors[field] = messages[0];
@@ -251,6 +437,18 @@ function handleServerErrors(err: any) {
   }
 }
 
+/* =========================
+ * LIFECYCLE
+ * ========================= */
+onMounted(() => {
+  userStore.fetchUsersData();
+  // branchStore.fetchBranchData();
+  shiftStore.fetchShiftData();
+});
+
+/* =========================
+ * EXPOSE
+ * ========================= */
 defineExpose({
   openAddDialog,
   openEditDialog,

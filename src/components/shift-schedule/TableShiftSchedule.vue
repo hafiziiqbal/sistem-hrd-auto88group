@@ -42,21 +42,70 @@
     </template>
 
     <!-- Kolom Tanggal Dinamis -->
+
     <template
       v-for="dateKey in dateColumns"
       :key="dateKey"
       #[`item.${dateKey}`]="{ item }"
     >
       <div class="text-center">
-        <v-chip
-          v-if="item[dateKey]"
-          size="x-small"
-          color="success"
-          variant="tonal"
-        >
-          {{ item[dateKey] }}
-        </v-chip>
-        <span v-else class="text-disabled text-body-2">-</span>
+        <v-menu location="top">
+          <template #activator="{ props }">
+            <v-chip
+              v-bind="props"
+              v-if="item[dateKey]"
+              size="small"
+              color="text-green-700 dark:text-green-300"
+              variant="tonal"
+            >
+              {{ item[dateKey]?.split(",")[1]?.trim() }}
+            </v-chip>
+
+            <span v-else class="text-disabled text-body-2">-</span>
+          </template>
+
+          <!-- POPUP CONTENT -->
+          <v-card min-width="200" class="p-2">
+            <div class="text-caption">
+              <div><b>Nama:</b> {{ item[dateKey]?.split(",")[2]?.trim() }}</div>
+              <div>
+                <b>In:</b>
+                {{
+                  item[dateKey]?.split(",")[3]?.trim().substring(0, 5) || "-"
+                }}
+              </div>
+              <div>
+                <b>Out:</b>
+                {{
+                  item[dateKey]?.split(",")[4]?.trim().substring(0, 5) || "-"
+                }}
+              </div>
+            </div>
+
+            <v-divider class="my-2" />
+
+            <div class="flex justify-end gap-2">
+              <v-btn
+                size="small"
+                color="text-amber-600"
+                variant="tonal"
+                @click="handleEdit(item, dateKey)"
+              >
+                Edit
+              </v-btn>
+
+              <v-btn
+                size="small"
+                color="text-red-600"
+                variant="tonal"
+                :loading="store.isLoadingDestroy"
+                @click="onDelete(item, dateKey)"
+              >
+                Hapus
+              </v-btn>
+            </div>
+          </v-card>
+        </v-menu>
       </div>
     </template>
   </v-data-table-server>
@@ -77,6 +126,13 @@ const { mdAndUp } = useDisplay();
 const store = useShiftScheduleStore();
 const holidayStore = useHolidayStore();
 const { formatName } = useFormatName();
+
+const emit = defineEmits(["edit"]);
+
+const props = defineProps<{
+  showError: (message: string) => void;
+  showSuccess: (message: string) => void;
+}>();
 
 function isHoliday(dateStr: string): boolean {
   return holidayStore.holidayByMonth.some((item) => item.tanggal === dateStr);
@@ -152,6 +208,30 @@ function formatDateHeader(dateStr: string): string {
 function onUpdateOptions(options: { page: number; itemsPerPage: number }) {
   store.params.start = (options.page - 1) * options.itemsPerPage;
   store.params.length = options.itemsPerPage;
+  store.fetchShiftSchedule();
+}
+
+function handleEdit(item: any, dateKey: string) {
+  const raw = item[dateKey];
+
+  if (!raw) return;
+
+  const parts = raw.split(",").map((v: string) => v.trim());
+
+  if (parts.length < 6) return;
+
+  const result = {
+    id: Number(parts[0]) || 0,
+    hrd_master_shift_id: Number(parts[5]) || 0,
+  };
+
+  emit("edit", result);
+}
+
+function onDelete(item: any, dateKey: string) {
+  let id = item[dateKey]?.split(",")[0]?.trim();
+  store.destroy(id);
+  props.showSuccess("Data berhasil dihapus.");
   store.fetchShiftSchedule();
 }
 

@@ -3,17 +3,21 @@
     <template v-slot:activator="{ props: menuProps }">
       <v-text-field
         v-model="dateRangeText"
-        label="Rentang Tanggal"
         prepend-inner-icon="mdi-calendar"
         readonly
         v-bind="menuProps"
+        :rules="props.rules"
         variant="outlined"
         density="compact"
-        hide-details
+        hide-details="auto"
         class="flex-1"
         clearable
         @click:clear="clearDate"
-      ></v-text-field>
+      >
+        <template #label>
+          <slot name="label">Rentang Tanggal</slot>
+        </template>
+      </v-text-field>
     </template>
 
     <v-date-picker
@@ -29,22 +33,26 @@ import { computed, ref, watch } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    modelValue?: Date[];
+    modelValue?: string[];
+    rules?: any[];
   }>(),
   {
     modelValue: () => [],
+    rules: () => [],
   },
 );
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: Date[]): void;
+  (e: "update:modelValue", value: string[]): void; // ✅
 }>();
 
 const menuDate = ref(false);
-// Gunakan tipe Date[] agar sesuai dengan output default v-date-picker
 const internalDates = ref<Date[]>([]);
 
-// Sync props ke internal state dengan deep watch
+// ✅ Track apakah ini klik pertama (pilih start) atau kedua (pilih end)
+const isPickingStart = ref(true);
+
+// Sync props → internal
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -52,53 +60,91 @@ watch(
       internalDates.value = [];
       return;
     }
-    // Hanya update jika referensi berbeda atau panjang berbeda
-    if (JSON.stringify(newVal) !== JSON.stringify(internalDates.value)) {
-      internalDates.value = [...newVal];
+    const normalized = newVal.map(normalizeToLocalDate);
+    if (JSON.stringify(normalized) !== JSON.stringify(internalDates.value)) {
+      internalDates.value = normalized;
     }
   },
   { immediate: true, deep: true },
 );
 
-function onPickerChange(val: any) {
-  // Vuetify terkadang mengirim single date atau array
-  const selection = Array.isArray(val) ? val : [val];
-
-  // Jika sudah memilih 2 tanggal (range lengkap), tutup menu
-  if (selection.length >= 2) {
-    menuDate.value = false;
+// Reset state saat menu dibuka
+watch(menuDate, (isOpen) => {
+  if (isOpen) {
+    isPickingStart.value = true;
   }
+});
 
-  emit("update:modelValue", selection);
+function normalizeToLocalDate(val: any): Date {
+  if (typeof val === "string") {
+    const [year, month, day] = val.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+  if (val instanceof Date) {
+    return new Date(val.getFullYear(), val.getMonth(), val.getDate());
+  }
+  return val;
+}
+
+function toDateString(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`; // "2026-04-15"
+}
+
+function onPickerChange(val: any) {
+  const selection = Array.isArray(val) ? val : [val];
+  if (selection.length === 0) return;
+
+  const normalized = [...selection]
+    .map(normalizeToLocalDate)
+    .sort((a, b) => a.getTime() - b.getTime());
+
+  internalDates.value = normalized;
+
+  if (isPickingStart.value) {
+    const start = normalized[0];
+    // ✅ Emit string, bukan Date object
+    emit("update:modelValue", [toDateString(start), toDateString(start)]);
+    isPickingStart.value = false;
+  } else {
+    const start = normalized[0];
+    const end = normalized[normalized.length - 1];
+    // ✅ Emit string, bukan Date object
+    emit("update:modelValue", [toDateString(start), toDateString(end)]);
+    menuDate.value = false;
+    isPickingStart.value = true;
+  }
 }
 
 function clearDate() {
   internalDates.value = [];
+  isPickingStart.value = true;
   emit("update:modelValue", []);
 }
 
 const dateRangeText = computed(() => {
   if (!props.modelValue || props.modelValue.length === 0) return "";
 
-  const sorted = [...props.modelValue].sort(
-    (a, b) => a.getTime() - b.getTime(),
-  );
-
-  const format = (d: Date) =>
-    d.toLocaleDateString("id-ID", {
+  const format = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const d = new Date(year, month - 1, day);
+    return d.toLocaleDateString("id-ID", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
+  };
 
-  if (sorted.length === 1) return format(sorted[0]);
+  const [start, end] = props.modelValue;
 
-  return `${format(sorted[0])} - ${format(sorted[sorted.length - 1])}`;
+  if (!end || start === end) return format(start);
+  return `${format(start)} - ${format(end)}`;
 });
 </script>
 
 <style scoped>
-/* Menghilangkan efek transparan/pudar pada text field readonly */
 :deep(.v-date-picker-month__day--selected button) {
   background: indigo;
   color: white;

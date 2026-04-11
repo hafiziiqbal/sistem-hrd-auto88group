@@ -14,6 +14,15 @@ export interface ShiftParams {
   note: string;
 }
 
+export interface ShiftDataParams {
+  search?: string;
+}
+
+export interface ShiftDataResponse {
+  success: boolean;
+  data: Shift[];
+}
+
 export interface leaveTypeCreateUpdateResponse {
   success: boolean;
   message: string;
@@ -52,6 +61,10 @@ export const shiftApi = {
 
   createShift(params: ShiftParams): Promise<leaveTypeCreateUpdateResponse> {
     return api.post(`/hrd/shift/?_method=POST`, params).then((res) => res.data);
+  },
+
+  getData(params: ShiftDataParams): Promise<ShiftDataResponse> {
+    return api.get("/hrd/shift/data", { params }).then((res) => res.data);
   },
 
   updateShift(

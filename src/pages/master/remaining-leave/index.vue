@@ -1,6 +1,5 @@
 <template>
   <div class="space-y-5">
-    <confirm-dialog />
     <!-- ───── Snackbar Error ───── -->
     <v-snackbar
       v-model="showErrorSnackbar"
@@ -45,53 +44,19 @@
       </template>
     </v-snackbar>
 
-    <header-shift-schedule @add="handleAdd" />
-    <table-shift-schedule
-      @edit="handleEdit"
-      :show-error="showError"
-      :show-success="showSuccess"
-      :ask="ask"
-    />
-    <form-dialog-shift-schedule
-      ref="formDialogRef"
-      :show-error="showError"
-      :show-success="showSuccess"
-    />
+    <header-remaining-leave />
+    <table-remaining-leave />
   </div>
 </template>
-<script setup lang="ts">
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
-import FormDialogShiftSchedule from "@/components/shift-schedule/FormDialogShiftSchedule.vue";
-import HeaderShiftSchedule from "@/components/shift-schedule/HeaderShiftSchedule.vue";
 
-import TableShiftSchedule from "@/components/shift-schedule/TableShiftSchedule.vue";
-import { useConfirmDialog } from "@/composables/useConfirmDialog";
+<script setup lang="ts">
+import HeaderRemainingLeave from "@/components/remaining-leave/HeaderRemainingLeave.vue";
+import TableRemainingLeave from "@/components/remaining-leave/TableRemainingLeave.vue";
 
 import { ref } from "vue";
-
-const formDialogRef = ref();
-const { ask } = useConfirmDialog();
 
 const showErrorSnackbar = ref(false);
 const snackbarMessage = ref("");
 const showSuccessSnackbar = ref(false);
 const successMessage = ref("");
-
-function showError(message: string) {
-  snackbarMessage.value = message;
-  showErrorSnackbar.value = true;
-}
-
-function showSuccess(message: string) {
-  successMessage.value = message;
-  showSuccessSnackbar.value = true;
-}
-
-function handleAdd() {
-  formDialogRef.value.openAddDialog();
-}
-
-function handleEdit(item: any) {
-  formDialogRef.value.openEditDialog(item);
-}
 </script>

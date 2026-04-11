@@ -1,12 +1,6 @@
 <template>
   <v-row>
     <v-col cols="12" md="4">
-      <date-range-picker
-        v-model="form.period"
-        @update:model-value="onChangePeriod"
-      />
-    </v-col>
-    <v-col cols="12" md="4">
       <v-autocomplete
         v-model="form.branch_id"
         :items="listBranch"
@@ -69,20 +63,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import DateRangePicker from "../DateRangePicker.vue";
-import { useBranchStore } from "@/stores/branch.store";
-import { useUserStore } from "@/stores/user.store";
 import { useDebounceFn } from "@/composables/UseDebounce";
 import { useFormatName } from "@/composables/useFormatName";
-import { useShiftScheduleStore } from "@/stores/shift-schedule.store";
-import { useDateFormatter } from "@/composables/UseDateFormatter";
+import { useBranchStore } from "@/stores/branch.store";
+import { useRemainingLeaveStore } from "@/stores/remaining-leave.store";
+import { useUserStore } from "@/stores/user.store";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 
 const { formatName } = useFormatName();
 
-const { toRangeYMD } = useDateFormatter();
-const shiftScheduleStore = useShiftScheduleStore();
 const branchStore = useBranchStore();
+const remainingLeaveStore = useRemainingLeaveStore();
 const userStore = useUserStore();
 
 const isSelecting = ref(false);
@@ -90,7 +81,6 @@ const selectedUserText = ref<string>("");
 const searchBranch = ref("");
 
 const form = reactive({
-  period: [] as string[],
   branch_id: null,
   user_id: null,
 });
@@ -153,14 +143,6 @@ function onSelectUser(value: number | null) {
   }, 500);
 }
 
-const onChangePeriod = useDebounceFn((val: string[]) => {
-  const dates = val.map((v) => new Date(v));
-
-  shiftScheduleStore.params.period = toRangeYMD(dates);
-
-  shiftScheduleStore.fetchShiftSchedule?.();
-}, 400);
-
 watch(
   () => form.branch_id,
   (newBranchId) => {
@@ -169,8 +151,8 @@ watch(
     form.user_id = null;
     selectedUserText.value = "";
 
-    shiftScheduleStore.params.branch_id = newBranchId ?? undefined;
-    shiftScheduleStore.fetchShiftSchedule?.();
+    remainingLeaveStore.params.branch_id = newBranchId ?? undefined;
+    remainingLeaveStore.fetchRemainingLeave?.();
 
     userStore.fetchUsersData();
   },
@@ -179,8 +161,8 @@ watch(
 watch(
   () => form.user_id,
   (newUserId) => {
-    shiftScheduleStore.params.user_id = newUserId ?? undefined;
-    shiftScheduleStore.fetchShiftSchedule?.();
+    remainingLeaveStore.params.user_id = newUserId ?? undefined;
+    remainingLeaveStore.fetchRemainingLeave?.();
   },
 );
 

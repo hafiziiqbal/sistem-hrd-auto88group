@@ -58,9 +58,20 @@ const router = createRouter({
           component: () => import("@/pages/master/shift/index.vue"),
           meta: { requiresAuth: true },
         },
-
         {
-          path: "/master",
+          path: "/master/remaining-leave",
+          name: "Saldo Cuti",
+          component: () => import("@/pages/master/remaining-leave/index.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/master/remaining-leave/:id/detail",
+          name: "Detail Cuti",
+          component: () => import("@/pages/master/remaining-leave/detail.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/setting",
           redirect: "/setting/working-hour",
         },
         {

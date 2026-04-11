@@ -2,6 +2,8 @@ import {
   shiftScheduleApi,
   type ShiftSchedule,
   type ShiftScheduleDatatablesParams,
+  type ShiftScheduleStorePayload,
+  type ShiftScheduleUpdatePayload,
 } from "@/api/modules/shift-schedule.api";
 import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
@@ -9,6 +11,9 @@ import { ref, reactive } from "vue";
 export const useShiftScheduleStore = defineStore("shift-schedule", () => {
   const shiftSchedule = ref<ShiftSchedule[]>([]);
   const isLoading = ref(false);
+  const isLoadingCreate = ref(false);
+  const isLoadingUpdate = ref(false);
+  const isLoadingDestroy = ref(false);
   const totalRecords = ref(0);
 
   const params = reactive<ShiftScheduleDatatablesParams>({
@@ -32,11 +37,44 @@ export const useShiftScheduleStore = defineStore("shift-schedule", () => {
     }
   }
 
+  async function store(payload: ShiftScheduleStorePayload) {
+    isLoadingCreate.value = true;
+    try {
+      return await shiftScheduleApi.store(payload);
+    } finally {
+      isLoadingCreate.value = false;
+    }
+  }
+
+  async function update(id: number, payload: ShiftScheduleUpdatePayload) {
+    isLoadingUpdate.value = true;
+    try {
+      return await shiftScheduleApi.update(id, payload);
+    } finally {
+      isLoadingUpdate.value = false;
+    }
+  }
+
+  async function destroy(id: number) {
+    isLoadingDestroy.value = true;
+    try {
+      return await shiftScheduleApi.destroy(id);
+    } finally {
+      isLoadingDestroy.value = false;
+    }
+  }
+
   return {
     shiftSchedule,
     isLoading,
+    isLoadingCreate,
+    isLoadingUpdate,
+    isLoadingDestroy,
     totalRecords,
     params,
     fetchShiftSchedule,
+    store,
+    update,
+    destroy,
   };
 });

@@ -1,6 +1,7 @@
 import {
   shiftApi,
   type Shift,
+  type ShiftDataParams,
   type ShiftDatatablesParams,
   type ShiftParams,
 } from "@/api/modules/shift.api";
@@ -9,10 +10,12 @@ import { ref, reactive } from "vue";
 
 export const useShiftStore = defineStore("shift", () => {
   const shift = ref<Shift[]>([]);
+  const shiftData = ref<Shift[]>([]);
   const isLoading = ref(false);
   const isLoadingCreate = ref(false);
   const isLoadingUpdate = ref(false);
   const isLoadingDestroy = ref(false);
+  const isLoadingData = ref(false);
   const totalRecords = ref(0);
 
   const params = reactive<ShiftDatatablesParams>({
@@ -20,6 +23,10 @@ export const useShiftStore = defineStore("shift", () => {
     start: 0,
     length: 10,
     search: undefined,
+  });
+
+  const shiftDataParams = reactive<ShiftDataParams>({
+    search: "",
   });
 
   async function fetchShift() {
@@ -31,6 +38,19 @@ export const useShiftStore = defineStore("shift", () => {
       params.draw = res.draw + 1;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  async function fetchShiftData() {
+    isLoadingData.value = true;
+    try {
+      const res = await shiftApi.getData({
+        ...shiftDataParams,
+      });
+
+      shiftData.value = res.data;
+    } finally {
+      isLoadingData.value = false;
     }
   }
 
@@ -85,13 +105,17 @@ export const useShiftStore = defineStore("shift", () => {
 
   return {
     shift,
+    shiftData,
     isLoading,
+    isLoadingData,
     isLoadingCreate,
     isLoadingUpdate,
     isLoadingDestroy,
     totalRecords,
     params,
+    shiftDataParams,
     fetchShift,
+    fetchShiftData,
     createShift,
     updateShift,
     destroyShift,
