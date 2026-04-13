@@ -44,15 +44,55 @@
       </template>
     </v-snackbar>
 
-    <header-remaining-leave-detail />
+    <header-remaining-leave-detail @add="handleAdd" />
+    <sub-header-remaining-leave-detail />
+    <table-detail-remaining-leave :employeeId="employeeId" />
+    <form-adjut-dialog
+      ref="formDialogRef"
+      :user-id="employeeId"
+      :show-error="showError"
+      :show-success="showSuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import FormAdjutDialog from "@/components/remaining-leave/FormAdjutDialog.vue";
 import HeaderRemainingLeaveDetail from "@/components/remaining-leave/HeaderRemainingLeaveDetail.vue";
-import { ref } from "vue";
+import SubHeaderRemainingLeaveDetail from "@/components/remaining-leave/SubHeaderRemainingLeaveDetail.vue";
+import TableDetailRemainingLeave from "@/components/remaining-leave/TableDetailRemainingLeave.vue";
+
+import { useUserStore } from "@/stores/user.store";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+
+const userStore = useUserStore();
+const route = useRoute();
+const employeeId = Number(route.params.id);
+
+const formDialogRef = ref();
+
 const showErrorSnackbar = ref(false);
 const snackbarMessage = ref("");
 const showSuccessSnackbar = ref(false);
 const successMessage = ref("");
+
+function showError(message: string) {
+  snackbarMessage.value = message;
+  showErrorSnackbar.value = true;
+}
+
+function showSuccess(message: string) {
+  successMessage.value = message;
+  showSuccessSnackbar.value = true;
+}
+
+function handleAdd() {
+  formDialogRef.value.openAddDialog();
+}
+
+onMounted(async () => {
+  userStore.userSelectedParams.id = employeeId.toString();
+  userStore.fetchUsersSelected();
+});
 </script>

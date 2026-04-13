@@ -15,6 +15,7 @@ export interface UserDataParams {
   search?: string;
   branch_id?: number;
   not_user_id?: number | number[];
+  is_less_than_one_year?: number;
 }
 
 export interface UserCreateUpdateParams {

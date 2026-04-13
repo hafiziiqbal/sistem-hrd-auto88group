@@ -47,6 +47,7 @@ export const useUserStore = defineStore("user", () => {
     search: "",
     branch_id: undefined,
     not_user_id: undefined, // tambahkan ini
+    is_less_than_one_year: undefined,
   });
   const userSelectedParams = reactive<UserSelectedParams>({
     id: "",
@@ -58,6 +59,12 @@ export const useUserStore = defineStore("user", () => {
   const buildUserDataParams = (params: UserDataParams): URLSearchParams => {
     const urlParams = new URLSearchParams();
 
+    if (params.is_less_than_one_year !== undefined) {
+      urlParams.append(
+        "is_less_than_one_year",
+        params.is_less_than_one_year ? "1" : "0",
+      );
+    }
     if (params.search) urlParams.append("search", params.search);
     if (params.branch_id)
       urlParams.append("branch_id", params.branch_id.toString());
@@ -108,7 +115,6 @@ export const useUserStore = defineStore("user", () => {
     isLoadingSelected.value = true;
     try {
       const res = await userApi.getSelected({ ...userSelectedParams });
-      console.log(res);
       usersSelected.value = res.data;
     } finally {
       isLoadingSelected.value = false;

@@ -15,19 +15,22 @@
         <v-btn
           prepend-icon="mdi-plus"
           variant="flat"
+          @click="emit('add')"
           class="bg-blue-500 dark:bg-blue-800 text-sm text-white"
         >
           Tambah Saldo Cuti</v-btn
         ><v-btn
           prepend-icon="mdi-minus"
           variant="flat"
+          @click="emit('subtract')"
           class="bg-amber-500 dark:bg-amber-800 text-sm text-white"
         >
-          Tambah Saldo Cuti</v-btn
+          Kurangi Saldo Cuti</v-btn
         >
         <v-btn
           prepend-icon="mdi-reload"
           variant="flat"
+          @click="emit('reset')"
           class="bg-red-500 dark:bg-red-800 text-sm text-white"
         >
           Reset Saldo Cuti</v-btn
@@ -41,6 +44,7 @@
 <script setup lang="ts">
 import FilterRemainingLeave from "./FilterRemainingLeave.vue";
 
+const emit = defineEmits(["add", "subtract", "reset"]);
 const items = [
   { title: "Master", disabled: false, href: "/master" },
   { title: "Saldo Cuti", disabled: true, href: "/master/remaining-leave" },

@@ -79,6 +79,7 @@ const showSuccessSnackbar = ref(false);
 const successMessage = ref("");
 
 function showError(message: string) {
+  console.log(message);
   snackbarMessage.value = message;
   showErrorSnackbar.value = true;
 }

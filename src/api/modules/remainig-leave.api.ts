@@ -8,9 +8,50 @@ export interface RemainingLeaveDatatablesParams {
 }
 
 export interface RemainingLeaveDetailParams {
+  draw?: number;
+  start?: number;
+  length?: number;
   year?: string;
   change?: string;
   type?: string;
+}
+
+export interface RemainingLeaveAdjustmentPayload {
+  user_id: number;
+  change: "+" | "-";
+  amount: number;
+  notes: string;
+}
+
+export interface RemainingLeaveAdjustmentResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user_id: number;
+    change_amount: string;
+    balance_before: number;
+    balance_after: number;
+  };
+}
+
+export interface RemainingLeaveSettingPayload {
+  change: "add" | "subtract" | "reset";
+  amount: number;
+  notes: string;
+  for: "all" | "branch" | "user";
+  for_id?: number;
+}
+
+export interface RemainingLeaveSettingError {
+  user_id: number;
+  name: string;
+  message: string;
+}
+
+export interface RemainingLeaveSettingResponse {
+  success: boolean;
+  message: string;
+  errors?: RemainingLeaveSettingError[];
 }
 
 export interface RemainingLeaveDatatablesResponse {
@@ -21,25 +62,10 @@ export interface RemainingLeaveDatatablesResponse {
 }
 
 export interface RemainingLeaveDetailResponse {
-  success: boolean;
-  message: string;
+  draw: number;
+  recordsTotal: number;
   recordsFiltered: number;
-  data: {
-    user: User;
-    history: History;
-  };
-}
-
-export interface User {
-  id: number;
-  name: string;
-  full_name: string;
-  employee_id: number;
-  position: string;
-  remaining_leave: number;
-  branch_name: string;
-  branch_code: string;
-  branch_alias: string;
+  data: History[];
 }
 
 export interface History {
@@ -84,6 +110,22 @@ export const remainingLeaveApi = {
   ): Promise<RemainingLeaveDetailResponse> {
     return api
       .get(`/hrd/remaining-leave/${id}/detail`, { params })
+      .then((res) => res.data);
+  },
+
+  storeAdjustment(
+    payload: RemainingLeaveAdjustmentPayload,
+  ): Promise<RemainingLeaveAdjustmentResponse> {
+    return api
+      .post("/hrd/remaining-leave/adjustment", payload)
+      .then((res) => res.data);
+  },
+
+  storeSetting(
+    payload: RemainingLeaveSettingPayload,
+  ): Promise<RemainingLeaveSettingResponse> {
+    return api
+      .post("/hrd/remaining-leave/setting", payload)
       .then((res) => res.data);
   },
 };

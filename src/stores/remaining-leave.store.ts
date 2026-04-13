@@ -2,20 +2,25 @@ import {
   remainingLeaveApi,
   type History,
   type RemainingLeave,
+  type RemainingLeaveAdjustmentPayload,
   type RemainingLeaveDatatablesParams,
   type RemainingLeaveDetailParams,
-  type User,
+  type RemainingLeaveSettingError,
+  type RemainingLeaveSettingPayload,
 } from "@/api/modules/remainig-leave.api";
 import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 
 export const useRemainingLeaveStore = defineStore("remaining-leave", () => {
   const remainingLeave = ref<RemainingLeave[]>([]);
-  const userSelected = ref<User | null>(null);
-  const historySelected = ref<History | null>(null);
+  const historySelected = ref<History[]>([]);
   const isLoading = ref(false);
   const isLoadingDetail = ref(false);
+  const isLoadingAdjustmant = ref(false);
+  const isLoadingSetting = ref(false);
   const totalRecords = ref(0);
+  const detailTotalRecords = ref(0);
+  const settingPartialErrors = ref<RemainingLeaveSettingError[]>([]);
 
   const params = reactive<RemainingLeaveDatatablesParams>({
     draw: 1,
@@ -26,6 +31,9 @@ export const useRemainingLeaveStore = defineStore("remaining-leave", () => {
   });
 
   const detailParams = reactive<RemainingLeaveDetailParams>({
+    draw: 1,
+    start: 0,
+    length: 10,
     year: undefined,
     change: undefined,
     type: undefined,
@@ -47,24 +55,50 @@ export const useRemainingLeaveStore = defineStore("remaining-leave", () => {
     isLoadingDetail.value = true;
     try {
       const res = await remainingLeaveApi.getDetail(id, detailParams);
-      userSelected.value = res.data.user;
-      historySelected.value = res.data.history;
-      return res;
+      historySelected.value = res.data;
+      detailTotalRecords.value = res.recordsTotal;
+      detailParams.draw = res.draw + 1;
     } finally {
       isLoadingDetail.value = false;
+    }
+  }
+
+  async function storeAdjustment(payload: RemainingLeaveAdjustmentPayload) {
+    isLoadingAdjustmant.value = true;
+    try {
+      const res = await remainingLeaveApi.storeAdjustment(payload);
+      return res;
+    } finally {
+      isLoadingAdjustmant.value = false;
+    }
+  }
+
+  async function storeSetting(payload: RemainingLeaveSettingPayload) {
+    isLoadingSetting.value = true;
+    settingPartialErrors.value = [];
+    try {
+      const res = await remainingLeaveApi.storeSetting(payload);
+      return res;
+    } finally {
+      isLoadingSetting.value = false;
     }
   }
 
   return {
     remainingLeave,
     historySelected,
-    userSelected,
     isLoading,
+    isLoadingAdjustmant,
     isLoadingDetail,
     totalRecords,
+    detailTotalRecords,
     params,
     detailParams,
+    isLoadingSetting,
+    settingPartialErrors,
+    storeSetting,
     fetchRemainingLeave,
     fetchRemainingLeaveDetail,
+    storeAdjustment,
   };
 });

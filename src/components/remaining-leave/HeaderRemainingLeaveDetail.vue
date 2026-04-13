@@ -13,11 +13,15 @@
         class="space-y-1 space-x-1 md:space-y-1 md:space-x-1 md:flex gap-2 justify-start"
       >
         <v-btn
-          prepend-icon="mdi-plus"
+          @click="handleAdd()"
+          prepend-icon="mdi-tune-variant"
           variant="flat"
           class="bg-blue-500 dark:bg-blue-800 text-sm text-white"
+          :disabled="isLessThanOneYear"
         >
-          Tambah Data</v-btn
+          {{
+            isLessThanOneYear ? "Karyawan Belum 1 Tahun" : "Sesuaikan Data"
+          }}</v-btn
         >
         <v-btn
           to="/master/remaining-leave"
@@ -33,6 +37,12 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from "@/stores/user.store";
+import { computed } from "vue";
+
+const emit = defineEmits(["add"]);
+const userStore = useUserStore();
+
 const items = [
   { title: "Master", disabled: false, href: "/master" },
   {
@@ -41,6 +51,23 @@ const items = [
     href: "/master/leave-history/detail",
   },
 ];
+
+const isLessThanOneYear = computed(() => {
+  const joinDate = userStore.usersSelected?.join_date;
+  if (!joinDate) return true;
+
+  const join = new Date(joinDate);
+  const now = new Date();
+
+  const diffTime = now.getTime() - join.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+  return diffDays < 365;
+});
+
+function handleAdd() {
+  emit("add");
+}
 </script>
 
 <style scoped>
