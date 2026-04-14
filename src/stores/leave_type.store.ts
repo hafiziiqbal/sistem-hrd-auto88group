@@ -1,6 +1,7 @@
 import {
   leaveTypeApi,
   type LeaveType,
+  type LeaveTypeDataParams,
   type LeaveTypeDatatablesParams,
   type LeaveTypeParams,
 } from "@/api/modules/leave_type.api";
@@ -9,7 +10,9 @@ import { ref, reactive } from "vue";
 
 export const useLeaveTypeStore = defineStore("leave-type", () => {
   const leaveType = ref<LeaveType[]>([]);
+  const leaveTypeData = ref<LeaveType[]>([]);
   const isLoading = ref(false);
+  const isLoadingData = ref(false);
   const isLoadingCreate = ref(false);
   const isLoadingUpdate = ref(false);
   const isLoadingDestroy = ref(false);
@@ -22,6 +25,10 @@ export const useLeaveTypeStore = defineStore("leave-type", () => {
     search: undefined,
   });
 
+  const leaveTypeDataParams = reactive<LeaveTypeDataParams>({
+    search: "",
+  });
+
   async function fetchLeaveType() {
     isLoading.value = true;
     try {
@@ -31,6 +38,16 @@ export const useLeaveTypeStore = defineStore("leave-type", () => {
       params.draw = res.draw + 1;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  async function fetchLeaveTypeData() {
+    isLoadingData.value = true;
+    try {
+      const res = await leaveTypeApi.getData({ ...leaveTypeDataParams });
+      leaveTypeData.value = res.data;
+    } finally {
+      isLoadingData.value = false;
     }
   }
 
@@ -85,13 +102,17 @@ export const useLeaveTypeStore = defineStore("leave-type", () => {
 
   return {
     leaveType,
+    leaveTypeData,
     isLoading,
+    isLoadingData,
     isLoadingCreate,
     isLoadingUpdate,
     isLoadingDestroy,
     totalRecords,
     params,
+    leaveTypeDataParams,
     fetchLeaveType,
+    fetchLeaveTypeData,
     createLeaveType,
     updateLeaveType,
     destroyLeaveType,

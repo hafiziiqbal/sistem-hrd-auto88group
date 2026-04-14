@@ -6,6 +6,15 @@ export interface LeaveTypeDatatablesParams {
   search?: string;
 }
 
+export interface LeaveTypeDataParams {
+  search?: string;
+}
+
+export interface LeaveTypeDataResponse {
+  success: boolean;
+  data: LeaveType[];
+}
+
 export interface LeaveTypeParams {
   code: string;
   name: string;
@@ -57,6 +66,10 @@ export const leaveTypeApi = {
     params: LeaveTypeDatatablesParams,
   ): Promise<LeaveTypeDatatablesResponse> {
     return api.get("/hrd/leave-type", { params }).then((res) => res.data);
+  },
+
+  getData(params: LeaveTypeDataParams): Promise<LeaveTypeDataResponse> {
+    return api.get("/hrd/leave-type/data", { params }).then((res) => res.data);
   },
 
   createLeaveType(

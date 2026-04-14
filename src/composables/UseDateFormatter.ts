@@ -80,10 +80,25 @@ export function useDateFormatter() {
     return `${start} - ${end}`;
   };
 
+  const toFullDateWithDay = (dateString: string | undefined | null): string => {
+    if (!dateString) return "-";
+
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+
+    const dayName = DAYS[date.getDay()];
+    const day = date.getDate();
+    const month = MONTHS[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${dayName}, ${day} ${month} ${year}`;
+  };
+
   return {
     toDayMonthYear,
     toFullDate,
     toDayShortMonth,
     toRangeYMD,
+    toFullDateWithDay,
   };
 }

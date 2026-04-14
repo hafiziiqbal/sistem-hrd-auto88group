@@ -30,113 +30,206 @@
         v-if="showFilter"
         class="mb-4 px-1 space-y-4 md:space-y-0 md:flex gap-2"
       >
-        <v-select
-          v-model="selectedBranch"
-          :items="branchOptions"
-          label="Pilih Cabang"
+        <v-autocomplete
+          v-model="form.branch_id"
+          :items="listBranch"
+          :loading="branchStore.isLoadingData"
+          prepend-inner-icon="mdi-map-marker-outline"
+          item-title="alias"
+          item-value="value"
+          placeholder="Lokasi cabang"
           variant="outlined"
           density="compact"
-          hide-details
-          rounded="xl"
-        ></v-select>
-
-        <v-select
-          v-model="selectedPermit"
-          :items="permitOptions"
-          label="Perizinan"
-          variant="outlined"
-          density="compact"
-          hide-details
-          rounded="xl"
+          color="primary"
+          label="Cabang"
+          class="custom-input"
+          hide-details="auto"
+          clearable
+          no-filter
+          @update:search="onSearchBranch"
         >
-          <template v-slot:prepend-inner>
-            <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
+          <template v-slot:item="{ props, item }">
+            <v-list-item
+              v-bind="props"
+              :title="item.alias"
+              :subtitle="item.title"
+            >
+            </v-list-item>
           </template>
-        </v-select>
+        </v-autocomplete>
+
+        <v-autocomplete
+          v-model="form.hrd_leave_type_id"
+          :items="listLeaveType"
+          :loading="leaveTypeStore.isLoadingData"
+          prepend-inner-icon="mdi-map-marker-outline"
+          item-title="title"
+          item-value="value"
+          placeholder="Pilih jenis izin"
+          variant="outlined"
+          density="compact"
+          color="primary"
+          label="Jenis Izin"
+          class="custom-input"
+          hide-details="auto"
+          clearable
+          no-filter
+          @update:search="onSearchLeaveType"
+        >
+        </v-autocomplete>
       </div>
     </v-expand-transition>
     <div
       class="overflow-scroll h-[400px] md:h-[400px] custom-scrollbar space-y-3 pb-20"
     >
-      <div
-        v-for="employee in employees"
-        :key="employee.id"
-        class="p-4 shadow-md rounded-[20px] border border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 transition-colors group"
-      >
-        <div class="flex items-start justify-between mb-2">
-          <div class="flex gap-3">
-            <div
-              class="bg-white dark:bg-slate-700 p-2 rounded-xl shadow-sm border border-slate-100 dark:border-slate-600"
-            >
-              <v-icon color="indigo">mdi-clock-time-eight-outline</v-icon>
-            </div>
-            <div>
-              <div class="text-xs text-slate-500">Pengajuan</div>
+      <template v-if="higlightStore.isLoadingLeaveRequest">
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="p-4 rounded-[20px] border border-slate-200 dark:border-slate-800 animate-pulse"
+        >
+          <div class="flex justify-between mb-4">
+            <div class="flex gap-3">
               <div
-                class="font-bold text-slate-800 dark:text-white leading-tight"
-              >
-                {{ formatDate(employee.createdAt) }}
-                <v-chip
-                  size="small"
-                  :color="getPermitColor(employee.permit)"
-                  variant="flat"
-                  class="font-bold text-uppercase"
-                  style="font-size: 10px; height: 18px"
-                >
-                  {{ employee.permit }}
-                </v-chip>
+                class="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-xl"
+              ></div>
+              <div class="space-y-2">
+                <div
+                  class="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded"
+                ></div>
+                <div
+                  class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"
+                ></div>
               </div>
             </div>
+            <div
+              class="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded-full"
+            ></div>
           </div>
-          <v-btn
-            variant="tonal"
-            size="small"
-            rounded="pill"
-            class="text-none"
-            color="indigo"
-          >
-            Detail
-          </v-btn>
+          <div
+            class="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded mb-2"
+          ></div>
+          <div class="h-3 w-1/4 bg-slate-200 dark:bg-slate-700 rounded"></div>
         </div>
+      </template>
 
-        <div class="space-y-3">
-          <p
-            class="text-[15px] font-bold text-slate-800 dark:text-slate-100 truncate leading-none"
+      <template v-else-if="higlightStore.leaveRequest.length === 0">
+        <div
+          class="flex flex-col items-center justify-center py-10 text-center"
+        >
+          <v-icon size="64" color="slate-300" class="mb-2"
+            >mdi-clipboard-text-search-outline</v-icon
           >
-            {{ employee.name }}
+          <p class="text-slate-500 font-medium">Tidak ada data pengajuan</p>
+          <p class="text-xs text-slate-400">
+            Coba ubah filter atau cari kata kunci lain
           </p>
-          <div class="flex items-center gap-4 text-xs">
-            <div class="flex items-center gap-1">
-              <span class="text-green-600 font-medium">Mulai:</span>
-              <span class="text-slate-900 dark:text-slate-300">{{
-                employee.startDate
-              }}</span>
+        </div>
+      </template>
+
+      <template v-else>
+        <div
+          v-for="leaveRequest in higlightStore.leaveRequest"
+          :key="leaveRequest.id"
+          class="p-4 shadow-md rounded-[20px] border border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 transition-colors group"
+        >
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex gap-3">
+              <div
+                class="bg-white dark:bg-slate-700 p-2 rounded-xl shadow-sm border border-slate-100 dark:border-slate-600"
+              >
+                <v-icon color="indigo">mdi-clock-time-eight-outline</v-icon>
+              </div>
+              <div>
+                <div class="text-xs text-slate-500">Pengajuan</div>
+                <div
+                  class="font-bold text-slate-800 dark:text-white leading-tight"
+                >
+                  {{ toFullDateWithDay(leaveRequest.created_at) }}
+                  <v-chip
+                    size="small"
+                    :color="getPermitColor(leaveRequest.leave_type)"
+                    variant="flat"
+                    class="font-bold text-uppercase"
+                    style="font-size: 10px; height: 18px"
+                  >
+                    {{ leaveRequest.leave_type_name }}
+                  </v-chip>
+                </div>
+              </div>
             </div>
-            <div class="flex items-center gap-1">
-              <span class="text-red-500 font-medium">Berakhir:</span>
-              <span class="text-slate-900 dark:text-slate-300">{{
-                employee.endDate
-              }}</span>
-            </div>
+            <v-btn
+              variant="tonal"
+              size="small"
+              rounded="pill"
+              class="text-none"
+              color="indigo"
+            >
+              Detail
+            </v-btn>
           </div>
 
-          <div class="mb-3">
-            <span
-              v-if="employee.approve == 1"
-              class="px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[11px] font-bold rounded-full border border-green-100 dark:border-green-800"
+          <div class="space-y-3">
+            <p
+              class="text-[15px] font-bold text-slate-800 dark:text-slate-100 truncate leading-none"
             >
-              Sudah Disetujui Oleh Admin
-            </span>
+              {{
+                formatName({
+                  name: leaveRequest.user_name,
+                  full_name: leaveRequest.user_full_name,
+                })
+              }}
+            </p>
+            <div class="flex items-center gap-4 text-xs">
+              <div class="flex items-center gap-1">
+                <span class="text-green-600 font-medium">Mulai:</span>
+                <span class="text-slate-900 dark:text-slate-300">{{
+                  toDayMonthYear(leaveRequest.start_date)
+                }}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="text-red-500 font-medium">Berakhir:</span>
+                <span class="text-slate-900 dark:text-slate-300">{{
+                  toDayMonthYear(leaveRequest.end_date)
+                }}</span>
+              </div>
+            </div>
 
-            <span
-              v-else
-              class="px-3 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[11px] font-bold rounded-full border border-red-100 dark:border-red-800"
-            >
-              Belum Disetujui Oleh Admin
-            </span>
+            <div class="mb-3">
+              <span
+                v-if="leaveRequest.status == 'approved'"
+                class="px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[11px] font-bold rounded-full border border-green-100 dark:border-green-800"
+              >
+                Sudah Disetujui Oleh
+                {{
+                  formatName({
+                    name: leaveRequest.approver_name,
+                    full_name: leaveRequest.approver_full_name,
+                  })
+                }}
+              </span>
+              <span
+                v-else-if="leaveRequest.status == 'pending'"
+                class="px-3 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[11px] font-bold rounded-full border border-red-100 dark:border-red-800"
+              >
+                Belum Disetujui Oleh Admin
+              </span>
+              <span
+                v-else
+                class="px-3 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[11px] font-bold rounded-full border border-red-100 dark:border-red-800"
+              >
+                Ditolak Oleh Admin
+                {{
+                  formatName({
+                    name: leaveRequest.approver_name,
+                    full_name: leaveRequest.approver_full_name,
+                  })
+                }}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
     </div>
     <div
       class="border-t border-slate-100 dark:border-slate-800 backdrop-blur-md rounded-b-[24px]"
@@ -157,43 +250,93 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import type { LeaveRequestParams } from "@/api/modules/highlight.api";
+import { useDateFormatter } from "@/composables/UseDateFormatter";
+import { useFormatName } from "@/composables/useFormatName";
+import { useBranchStore } from "@/stores/branch.store";
+import { useHighlightStore } from "@/stores/highlight.store";
+import { useLeaveTypeStore } from "@/stores/leave_type.store";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 const showFilter = ref(false);
-// Filter States
-const selectedBranch = ref("Semua Cabang");
-const branchOptions = [
-  "Semua Cabang",
-  "Autoplaza 88 (Pontianak)",
-  "Auto 88 Kuburaya",
-  "Auto 88 Sintang",
-];
 
-const selectedPermit = ref("Semua");
-const permitOptions = ["Semua", "Cuti", "Sakit", "Izin"];
-// Generate 50 dummy data
-const employees = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  name: `Karyawan Ke-${i + 1}`,
-  createdAt: `2026-03-30 15:18:16`,
-  permit: `Cuti`,
-  email: `user${i + 1}@auto88.co.id`,
-  branch: "Autoplaza 88",
-  startDate: "29-06-2020",
-  endDate: "31-03-2026",
-  approve: 0,
-  daysLeft: Math.floor(Math.random() * 10) + 1,
-}));
+const higlightStore = useHighlightStore();
+const branchStore = useBranchStore();
+const leaveTypeStore = useLeaveTypeStore();
+const { formatName } = useFormatName();
+const { toFullDateWithDay, toDayMonthYear } = useDateFormatter();
 
-const formatDate = (dateString: string | number | Date) => {
-  if (!dateString) return "-";
+const searchBranch = ref("");
+const searchLeaveType = ref("");
 
-  return new Date(dateString).toLocaleDateString("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+const listBranch = computed(() => {
+  const keyword = searchBranch.value.toLowerCase();
+  return branchStore.branchData
+    .filter((branch) => {
+      if (!keyword) return true;
+
+      return (
+        branch.name.toLowerCase().includes(keyword) ||
+        branch.alias.toLowerCase().includes(keyword)
+      );
+    })
+    .map((branch) => ({
+      title: branch.name,
+      alias: branch.alias,
+      value: branch.id,
+    }));
+});
+
+const listLeaveType = computed(() => {
+  const keyword = searchLeaveType.value.toLowerCase();
+  return leaveTypeStore.leaveTypeData
+    .filter((leaveType) => {
+      if (!keyword) return true;
+
+      return (
+        leaveType.name.toLowerCase().includes(keyword) ||
+        leaveType.code.toLowerCase().includes(keyword)
+      );
+    })
+    .map((leaveType) => ({
+      title: leaveType.name,
+      value: leaveType.id,
+    }));
+});
+
+const onSearchBranch = (val: any) => {
+  searchBranch.value = val ?? "";
 };
+
+const onSearchLeaveType = (val: any) => {
+  searchLeaveType.value = val ?? "";
+};
+
+const form = reactive<Partial<LeaveRequestParams>>({
+  branch_id: undefined,
+  hrd_leave_type_id: undefined,
+});
+
+watch(
+  () => form.hrd_leave_type_id,
+  (val) => {
+    higlightStore.leaveRequestParams.hrd_leave_type_id = val;
+    higlightStore.fetchLeaveRequest?.();
+  },
+);
+
+watch(
+  () => form.branch_id,
+  (val) => {
+    higlightStore.leaveRequestParams.branch_id = val;
+    higlightStore.fetchLeaveRequest?.();
+  },
+);
+
+onMounted(() => {
+  higlightStore.fetchLeaveRequest();
+  branchStore.fetchBranchData();
+  leaveTypeStore.fetchLeaveTypeData();
+});
 
 const getPermitColor = (permit: string) => {
   if (!permit) return "grey";
