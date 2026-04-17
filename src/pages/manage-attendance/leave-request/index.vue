@@ -3,7 +3,7 @@
     <confirm-dialog />
 
     <v-snackbar
-      v-model="showErrorSnackbar"
+      v-model="appStore.showErrorSnackbar"
       color="bg-red-500"
       elevation="24"
       location="top"
@@ -12,19 +12,19 @@
     >
       <div class="d-flex align-center">
         <v-icon icon="mdi-alert-circle" class="me-3"></v-icon>
-        <span class="font-weight-medium">{{ snackbarMessage }}</span>
+        <span class="font-weight-medium">{{ appStore.errorMessage }}</span>
       </div>
       <template v-slot:actions>
         <v-btn
           variant="text"
           icon="mdi-close"
-          @click="showErrorSnackbar = false"
+          @click="appStore.showErrorSnackbar = false"
         ></v-btn>
       </template>
     </v-snackbar>
 
     <v-snackbar
-      v-model="showSuccessSnackbar"
+      v-model="appStore.showSuccessSnackbar"
       color="bg-green-500"
       elevation="24"
       location="top"
@@ -33,52 +33,37 @@
     >
       <div class="d-flex align-center">
         <v-icon icon="mdi-check-circle" class="me-3"></v-icon>
-        <span class="font-weight-medium">{{ successMessage }}</span>
+        <span class="font-weight-medium">{{ appStore.successMessage }}</span>
       </div>
       <template v-slot:actions>
         <v-btn
           variant="text"
           icon="mdi-close"
-          @click="showSuccessSnackbar = false"
+          @click="appStore.showErrorSnackbar = false"
         ></v-btn>
       </template>
     </v-snackbar>
-    <table-leave-request
-      @info="handleInfo"
-      :show-error="showError"
-      :show-success="showSuccess"
-      :ask="ask"
-    />
+    <table-leave-request @info="handleInfo" :ask="ask" />
+    <form-dialog-approval />
     <info-dialog-leave-request ref="infoDialogRef" />
   </div>
 </template>
 
 <script setup lang="ts">
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import FormDialogApproval from "@/components/leave-request/FormDialogApproval.vue";
 import InfoDialogLeaveRequest from "@/components/leave-request/InfoDialogLeaveRequest.vue";
 import TableLeaveRequest from "@/components/leave-request/TableLeaveRequest.vue";
 import { useConfirmDialog } from "@/composables/useConfirmDialog";
+import { useAppStore } from "@/stores/app";
 import { ref } from "vue";
-const showErrorSnackbar = ref(false);
-const snackbarMessage = ref("");
-const showSuccessSnackbar = ref(false);
-const successMessage = ref("");
+const appStore = useAppStore();
+
 const infoDialogRef = ref();
 
 const { ask } = useConfirmDialog();
 
 function handleInfo() {
   infoDialogRef.value.openInfoDialog();
-}
-
-function showError(message: string) {
-  console.log(message);
-  snackbarMessage.value = message;
-  showErrorSnackbar.value = true;
-}
-
-function showSuccess(message: string) {
-  successMessage.value = message;
-  showSuccessSnackbar.value = true;
 }
 </script>

@@ -15,6 +15,9 @@ export const useLeaveRequestStore = defineStore("leaveRequest", () => {
   const isLoadingApproval = ref(false);
   const totalRecords = ref(0);
 
+  const dialog = ref(false);
+  const serverErrors = reactive<Record<string, string>>({});
+
   const params = reactive<LeaveRequestDatatablesParams>({
     draw: 1,
     start: 0,
@@ -62,7 +65,10 @@ export const useLeaveRequestStore = defineStore("leaveRequest", () => {
     isLoadingApproval,
     isLoadingDestroy,
     totalRecords,
+    payloadApproval,
     params,
+    dialog,
+    serverErrors,
     fetchLeaveRequest,
     approvalLeaveRequest,
   };

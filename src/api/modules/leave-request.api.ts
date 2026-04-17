@@ -107,7 +107,7 @@ export const leaveRequestApi = {
     payload: LeaveRequestApprovalPayload,
   ): Promise<LeaveRequestApprovalResponse> {
     return api
-      .post(`/hrd/leave-request/${payload.id}/approval`, payload)
+      .post(`/hrd/leave-request/approval/${payload.id}`, payload)
       .then((res) => res.data);
   },
 };

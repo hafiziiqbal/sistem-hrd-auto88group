@@ -258,8 +258,6 @@ const leaveRequest = computed(() => leaveRequestStore.leaveRequest);
 const { toFullDateWithDay, toFullDate } = useDateFormatter();
 
 const props = defineProps<{
-  showError: (message: string) => void;
-  showSuccess: (message: string) => void;
   ask: (options: any) => Promise<boolean>;
 }>();
 
@@ -295,6 +293,11 @@ function onTableOptionsChange(options: { page: number; itemsPerPage: number }) {
 
 function approve(item: any) {
   console.log("Approve", item);
+  leaveRequestStore.dialog = true;
+  leaveRequestStore.payloadApproval.id = item.id;
+  leaveRequestStore.payloadApproval.status = "approved";
+  leaveRequestStore.payloadApproval.level = "primary";
+
   // API call approve
 }
 function reject(item: any) {
@@ -319,10 +322,7 @@ async function handleDelete(id: number) {
 async function deleteWorkExperience(id: number) {
   try {
     // await leaveRequestStore.destroyLeaveType(id);
-    props.showSuccess("Data jenis izin berhasil dihapus.");
-  } catch (err: any) {
-    props.showError(err?.message ?? "Gagal menghapus data jenis izin.");
-  }
+  } catch (err: any) {}
 }
 
 onMounted(() => leaveRequestStore.fetchLeaveRequest());

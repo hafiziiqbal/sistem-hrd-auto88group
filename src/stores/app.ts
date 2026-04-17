@@ -7,13 +7,10 @@ export const useAppStore = defineStore("app", () => {
   const showSuccessSnackbar = ref(false);
   const successMessage = ref("");
 
-  const dialog = ref(false);
-
   return {
     errorMessage,
     showErrorSnackbar,
     showSuccessSnackbar,
     successMessage,
-    dialog,
   };
 });

@@ -1,10 +1,16 @@
 <template>
-  <v-dialog v-model="appStore.dialog" max-width="700" scrollable>
+  <v-dialog v-model="leaveRequestStore.dialog" max-width="700" scrollable>
     <v-card rounded="lg">
       <v-card-title class="flex items-center gap-2 px-6 pt-5 pb-3">
         <v-icon icon="mdi-tune-variant" color="primary" size="small"></v-icon>
         <span class="text-base font-bold">
-          {{ "Sesuaikan Data " }}
+          {{
+            form.status == "approved"
+              ? "Approve Pengajuan"
+              : form.status == "rejected"
+                ? "Reject Pengajuan"
+                : ""
+          }}
         </span>
         <v-spacer></v-spacer>
         <v-btn
@@ -26,7 +32,7 @@
                 density="compact"
                 hide-details="auto"
                 :rules="[rules.required]"
-                :error-messages="serverErrors.note"
+                :error-messages="leaveRequestStore.serverErrors.note"
               >
                 <template v-slot:label>
                   Catatan<span class="text-red-500">*</span>
@@ -43,7 +49,7 @@
           color="bg-blue-300 dark:bg-blue-500"
           variant="flat"
           prepend-icon="mdi-content-save"
-          :loading="remainingLeaveStore.isLoadingAdjustmant"
+          :loading="leaveRequestStore.isLoadingApproval"
           @click="submitForm"
         >
           Konfirmasi
@@ -54,15 +60,54 @@
 </template>
 <script setup lang="ts">
 import { useAppStore } from "@/stores/app";
-import { reactive, ref } from "vue";
+import { useLeaveRequestStore } from "@/stores/leave-request.store";
+import { computed, ref } from "vue";
 
 const appStore = useAppStore();
+const leaveRequestStore = useLeaveRequestStore();
 const formRef = ref();
-const serverErrors = reactive<Record<string, string>>({});
+
+const form = computed(() => leaveRequestStore.payloadApproval);
+
+const rules = {
+  required: (v: any) =>
+    (v !== null && v !== undefined && v !== "") || "Wajib diisi",
+};
+
+async function submitForm() {
+  try {
+    const res = await leaveRequestStore.approvalLeaveRequest();
+    if (res.success) {
+      appStore.showSuccessSnackbar = true;
+      appStore.successMessage = res.message;
+      leaveRequestStore.fetchLeaveRequest();
+    }
+  } catch (error: any) {
+    handleServerErrors(error);
+  }
+}
+
+function handleServerErrors(err: any) {
+  if (err?.status === 422) {
+    appStore.showErrorSnackbar = true;
+    appStore.errorMessage = err?.message ?? "Terjadi kesalahan, coba lagi.";
+    const errors = err.errors as Record<string, string[]>;
+    if (errors) {
+      Object.entries(errors).forEach(([field, messages]) => {
+        leaveRequestStore.serverErrors[field] = messages[0];
+      });
+    }
+  } else {
+    appStore.showErrorSnackbar = true;
+    appStore.errorMessage = err?.message ?? "Terjadi kesalahan, coba lagi.";
+  }
+}
 
 function closeDialog() {
-  appStore.dialog = false;
+  leaveRequestStore.dialog = false;
   formRef.value?.reset();
-  Object.keys(serverErrors).forEach((key) => delete serverErrors[key]);
+  Object.keys(leaveRequestStore.serverErrors).forEach(
+    (key) => delete leaveRequestStore.serverErrors[key],
+  );
 }
 </script>
