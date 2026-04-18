@@ -43,7 +43,7 @@
         ></v-btn>
       </template>
     </v-snackbar>
-    <table-leave-request :ask="ask" />
+    <table-leave-request />
     <form-dialog-approval />
     <info-dialog-leave-request />
   </div>
@@ -54,10 +54,7 @@ import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import FormDialogApproval from "@/components/leave-request/FormDialogApproval.vue";
 import InfoDialogLeaveRequest from "@/components/leave-request/InfoDialogLeaveRequest.vue";
 import TableLeaveRequest from "@/components/leave-request/TableLeaveRequest.vue";
-import { useConfirmDialog } from "@/composables/useConfirmDialog";
 import { useAppStore } from "@/stores/app";
-import { ref } from "vue";
-const appStore = useAppStore();
 
-const { ask } = useConfirmDialog();
+const appStore = useAppStore();
 </script>

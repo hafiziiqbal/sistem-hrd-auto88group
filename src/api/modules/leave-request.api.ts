@@ -23,6 +23,17 @@ export interface LeaveRequestSelectedResponse {
   data: LeaveRequest | null;
 }
 
+export interface LeaveRequestCreateUpdatePayload {
+  id: number | null;
+  user_id: number | null;
+  hrd_leave_type_id: number | null;
+  start_date: string | null;
+  end_date: string | null;
+  total_days: number | null;
+  reason: string | null;
+  attachment: string | null;
+}
+
 export interface LeaveRequestApprovalPayload {
   id: number | null;
   note: string | null;
@@ -61,6 +72,7 @@ export interface LeaveRequest {
   approved_at_hrd: string | null;
 
   attachment: string | null;
+  has_deduct_no_file: number | null;
   reason: string;
   created_at: string;
 
@@ -121,6 +133,12 @@ export const leaveRequestApi = {
   ): Promise<LeaveRequestApprovalResponse> {
     return api
       .post(`/hrd/leave-request/approval/${payload.id}`, payload)
+      .then((res) => res.data);
+  },
+
+  deductLeave(id: number | null): Promise<LeaveRequestApprovalResponse> {
+    return api
+      .post(`/hrd/leave-request/deduct-leave/${id}`)
       .then((res) => res.data);
   },
 };

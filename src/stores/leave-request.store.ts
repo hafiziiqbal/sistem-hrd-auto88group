@@ -4,6 +4,7 @@ import {
   type LeaveRequestApprovalPayload,
   type LeaveRequestDatatablesParams,
 } from "@/api/modules/leave-request.api";
+
 import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 
@@ -14,11 +15,14 @@ export const useLeaveRequestStore = defineStore("leaveRequest", () => {
   const isLoadingSelected = ref(false);
   const isLoadingDestroy = ref(false);
   const isLoadingApproval = ref(false);
+  const isLoadingDeductLeave = ref(false);
   const totalRecords = ref(0);
 
   const dialog = ref(false);
   const infoDialog = ref(false);
   const serverErrors = reactive<Record<string, string>>({});
+
+  const paramId = ref<number | null>(null);
 
   const params = reactive<LeaveRequestDatatablesParams>({
     draw: 1,
@@ -81,6 +85,16 @@ export const useLeaveRequestStore = defineStore("leaveRequest", () => {
     }
   }
 
+  async function deductLeaveRequest() {
+    isLoadingDeductLeave.value = true;
+    try {
+      const res = await leaveRequestApi.deductLeave(paramId.value);
+      return res;
+    } finally {
+      isLoadingDeductLeave.value = false;
+    }
+  }
+
   function clearApprovalPayload() {
     payloadApproval.id = null;
     payloadApproval.note = null;
@@ -95,9 +109,11 @@ export const useLeaveRequestStore = defineStore("leaveRequest", () => {
     isLoadingApproval,
     isLoadingDestroy,
     isLoadingSelected,
+    isLoadingDeductLeave,
     totalRecords,
     payloadApproval,
     params,
+    paramId,
     dialog,
     infoDialog,
     serverErrors,
@@ -105,5 +121,6 @@ export const useLeaveRequestStore = defineStore("leaveRequest", () => {
     approvalLeaveRequest,
     fetchLeaveRequestSelected,
     clearApprovalPayload,
+    deductLeaveRequest,
   };
 });

@@ -783,6 +783,7 @@
 
             <v-col cols="12" md="6">
               <v-text-field
+                disabled
                 v-model.number="form.remaining_leave"
                 variant="outlined"
                 density="compact"

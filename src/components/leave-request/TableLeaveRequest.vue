@@ -354,13 +354,23 @@
     <template #[`item.actions`]="{ item }">
       <div class="flex justify-end items-center gap-3">
         <v-btn
-          v-if="!item.attachment && item.deduct_no_file"
+          v-if="
+            !item.attachment && item.deduct_no_file && !item.has_deduct_no_file
+          "
           color="bg-red-500 text-white"
           variant="flat"
           size="small"
+          :loading="leaveRequestStore.isLoadingDeductLeave"
+          @click="handleDeductLeave(item.id)"
         >
           Kurangi Cuti (Tidak ada lampiran)
         </v-btn>
+        <v-chip
+          v-if="
+            !item.attachment && item.deduct_no_file && item.has_deduct_no_file
+          "
+          >Cuti sudah dikurangi (tidak ada file)</v-chip
+        >
         <v-btn
           icon
           color="text-blue-500"
@@ -397,17 +407,20 @@ import { useLeaveRequestStore } from "@/stores/leave-request.store";
 import { useFormatName } from "@/composables/useFormatName";
 import { useDateFormatter } from "@/composables/UseDateFormatter";
 import { useAuthStore } from "@/stores/auth.store";
+import { useConfirmDialog } from "@/composables/useConfirmDialog";
+import { useAppStore } from "@/stores/app";
 
 const { formatName } = useFormatName();
 const authStore = useAuthStore();
+const appStore = useAppStore();
 const leaveRequestStore = useLeaveRequestStore();
 const leaveRequest = computed(() => leaveRequestStore.leaveRequest);
-
+const { ask } = useConfirmDialog();
 const { toFullDateWithDay, toFullDate } = useDateFormatter();
 
-const props = defineProps<{
-  ask: (options: any) => Promise<boolean>;
-}>();
+// const props = defineProps<{
+//   ask: (options: any) => Promise<boolean>;
+// }>();
 
 const emit = defineEmits(["edit"]);
 
@@ -458,12 +471,38 @@ function reject(
   leaveRequestStore.payloadApproval.level = level;
 }
 
+async function handleDeductLeave(id: number) {
+  const confirmed = await ask({
+    title: "Kurangi Cuti",
+    message: "Cuti akan dikurangi. Lanjutkan?",
+    confirmText: "Ya, Kurangi",
+    color: "red-darken-1",
+  });
+  if (confirmed) {
+    try {
+      leaveRequestStore.paramId = id;
+      const res = await leaveRequestStore.deductLeaveRequest();
+      if (res.success) {
+        appStore.showSuccessSnackbar = true;
+        appStore.successMessage = res.message;
+        leaveRequestStore.fetchLeaveRequest();
+      }
+    } catch (error: any) {
+      if (error.status === 422) {
+        appStore.showErrorSnackbar = true;
+        appStore.errorMessage =
+          error?.message ?? "Terjadi kesalahan, coba lagi.";
+      }
+    }
+  }
+}
+
 function handleEdit(item: any) {
   emit("edit", item);
 }
 
 async function handleDelete(id: number) {
-  const confirmed = await props.ask({
+  const confirmed = await ask({
     title: "Hapus Pengajuan Izin",
     message: "Data ini akan dihapus. Lanjutkan?",
     confirmText: "Ya, Hapus",
