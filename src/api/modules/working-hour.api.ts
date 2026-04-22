@@ -77,7 +77,7 @@ export const workingHourApi = {
     params: WorkingHourParams,
   ): Promise<WorkingHourCreateUpdateResponse> {
     return api
-      .post(`/hrd/working-hour/${id}?_method=POST`, params)
+      .post(`/hrd/working-hour/${id}  `, params)
       .then((res) => res.data);
   },
 };

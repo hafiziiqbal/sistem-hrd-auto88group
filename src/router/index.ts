@@ -99,6 +99,20 @@ const router = createRouter({
             import("@/pages/manage-attendance/leave-request/index.vue"),
           meta: { requiresAuth: true },
         },
+        {
+          path: "/manage-attendance/overtime-request",
+          name: "Pengajuan Lembur",
+          component: () =>
+            import("@/pages/manage-attendance/overtime-request/index.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/manage-attendance/attendance-report",
+          name: "Laporan Absensi",
+          component: () =>
+            import("@/pages/manage-attendance/attendance-report/index.vue"),
+          meta: { requiresAuth: true },
+        },
       ],
     },
     {

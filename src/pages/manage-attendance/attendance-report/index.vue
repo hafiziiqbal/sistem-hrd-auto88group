@@ -1,7 +1,5 @@
 <template>
   <div class="space-y-5">
-    <confirm-dialog />
-
     <v-snackbar
       v-model="appStore.showErrorSnackbar"
       color="bg-red-500"
@@ -43,21 +41,13 @@
         ></v-btn>
       </template>
     </v-snackbar>
-    <header-leave-request />
-    <table-leave-request />
-    <form-dialog-approval />
-    <form-dialog-create-edit-leave-request />
-    <info-dialog-leave-request />
+
+    <table-attendance-report />
   </div>
 </template>
 
 <script setup lang="ts">
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
-import FormDialogApproval from "@/components/leave-request/FormDialogApproval.vue";
-import FormDialogCreateEditLeaveRequest from "@/components/leave-request/FormDialogCreateEditLeaveRequest.vue";
-import HeaderLeaveRequest from "@/components/leave-request/HeaderLeaveRequest.vue";
-import InfoDialogLeaveRequest from "@/components/leave-request/InfoDialogLeaveRequest.vue";
-import TableLeaveRequest from "@/components/leave-request/TableLeaveRequest.vue";
+import TableAttendanceReport from "@/components/attendance-report/TableAttendanceReport.vue";
 import { useAppStore } from "@/stores/app";
 
 const appStore = useAppStore();

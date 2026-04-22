@@ -247,7 +247,10 @@
             class="d-flex flex-wrap"
           >
             <v-btn
-              to="/absensi"
+              to="/manage-attendance/attendance-report"
+              :active="
+                $route.path.startsWith('/manage-attendance/attendance-report')
+              "
               variant="text"
               size="small"
               prepend-icon="mdi-file-chart"
@@ -263,7 +266,10 @@
               >Rekap Absensi</v-btn
             >
             <v-btn
-              to="/absensi"
+              to="/manage-attendance/overtime-request"
+              :active="
+                $route.path.startsWith('/manage-attendance/overtime-request')
+              "
               variant="text"
               size="small"
               prepend-icon="mdi-file-table"
@@ -461,6 +467,10 @@
               >
             </template>
             <v-list-item
+              to="/manage-attendance/attendance-report"
+              :active="
+                $route.path.startsWith('/manage-attendance/attendance-report')
+              "
               active-class="text-indigo-600"
               title="Laporan Absensi"
               value="laporan-absensi"
@@ -471,6 +481,10 @@
               value="rekap-absensi"
             ></v-list-item>
             <v-list-item
+              to="/manage-attendance/overtime-request"
+              :active="
+                $route.path.startsWith('/manage-attendance/overtime-request')
+              "
               title="Pengajuan Lembur"
               active-class="text-indigo-600"
               value="lembur"
